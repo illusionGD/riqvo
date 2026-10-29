@@ -1,0 +1,9 @@
+node_modules
+dist
+.cache
+.local
+pnpm-lock.yaml
+.codex/rules
+.codex/skills
+docs/product
+docs/research/web-test-platform.md

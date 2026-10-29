@@ -1,0 +1,11 @@
+packages:
+  - apps/*
+  - packages/*
+engineStrict: true
+saveExact: true
+strictPeerDependencies: true
+minimumReleaseAgeStrict: true
+storeDir: .cache/pnpm/store
+cacheDir: .cache/pnpm/cache
+allowBuilds:
+  '@parcel/watcher': true

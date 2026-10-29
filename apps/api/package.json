@@ -1,0 +1,24 @@
+{
+  "name": "@riqvo/api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "tsc-watch --onSuccess \"node --env-file=../../.env dist/main.js\"",
+    "start": "node --env-file=../../.env dist/main.js",
+    "db:migrate": "pnpm build && node --env-file=../../.env dist/database/migrate.js up",
+    "db:status": "pnpm build && node --env-file=../../.env dist/database/migrate.js status"
+  },
+  "dependencies": {
+    "@nestjs/common": "11.2.8",
+    "@nestjs/core": "11.2.8",
+    "@nestjs/platform-express": "11.2.8",
+    "ioredis": "5.11.1",
+    "mysql2": "3.24.6",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2",
+    "typeorm": "0.3.31",
+    "zod": "4.6.7"
+  }
+}

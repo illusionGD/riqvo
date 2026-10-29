@@ -1,0 +1,38 @@
+name: riqvo-dev
+services:
+  mysql:
+    image: mysql:8.4.13@sha256:a0225d1ea6631c8bc2385dc4c2faba17bbf1834ecf369e1659a9a382bd8d5dd7
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:?Run pnpm env:init first}
+      MYSQL_USER: ${MYSQL_USER:?Run pnpm env:init first}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Run pnpm env:init first}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Run pnpm env:init first}
+    ports:
+      - '127.0.0.1:${MYSQL_PORT:-13306}:3306'
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'MYSQL_PWD="$$MYSQL_PASSWORD" mysql -h 127.0.0.1 -u "$$MYSQL_USER" -D "$$MYSQL_DATABASE" -e "SELECT 1" >/dev/null 2>&1',
+        ]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 20s
+  redis:
+    image: redis:7.4.12-alpine@sha256:6ba19c50b56777f5c11c58eff8ddb69d0d5f27ba131cffb63f180ccfd43c66af
+    command: ['redis-server', '--appendonly', 'yes', '--maxmemory-policy', 'noeviction']
+    ports:
+      - '127.0.0.1:${REDIS_PORT:-16379}:6379'
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 3s
+      timeout: 3s
+      retries: 10
+volumes:
+  mysql-data:
+  redis-data:
