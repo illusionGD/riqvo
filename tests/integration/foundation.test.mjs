@@ -127,6 +127,7 @@ test(
     t.after(() => browser.close());
     const page = await browser.newPage();
     await page.goto(`http://127.0.0.1:${webPort}`);
+    await page.getByRole('button', { name: '系统状态', exact: true }).click();
     await page.getByRole('heading', { name: '服务已就绪', exact: true }).waitFor({ timeout: 5000 });
     assert.equal(await page.getByText('已就绪', { exact: true }).count(), 3);
     assert.equal(await page.getByRole('alert').count(), 0);

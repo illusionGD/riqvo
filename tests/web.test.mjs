@@ -40,6 +40,8 @@ test(
     t.after(() => browser.close());
     const page = await browser.newPage();
     await page.goto(`http://127.0.0.1:${webPort}`);
+    await page.getByRole('heading', { name: 'PC 录制与回放' }).waitFor();
+    await page.getByRole('button', { name: '系统状态', exact: true }).click();
     await page
       .getByRole('heading', { name: '服务暂不可用', exact: true })
       .waitFor({ timeout: 5000 });
@@ -47,7 +49,10 @@ test(
     await api.stop();
     await page.getByRole('button', { name: '重新检查' }).click();
     await page.getByRole('alert').waitFor();
-    assert.match(await page.getByRole('alert').textContent(), /无法连接平台服务/);
+    assert.match(
+      await page.getByRole('region', { name: '平台服务健康' }).getByRole('alert').textContent(),
+      /无法连接平台服务/,
+    );
     assert.equal(await page.getByRole('button', { name: '重新检查' }).isEnabled(), true);
   },
 );

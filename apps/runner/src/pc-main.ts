@@ -9,6 +9,14 @@ import { createPcWorkbench, WorkbenchError } from './pc-workbench';
 import { streamPcEvents } from './pc-events';
 
 const configSchema = z.object({
+  RIQVO_PC_PLATFORM_URL: z
+    .string()
+    .url()
+    .refine((value) => {
+      const url = new URL(value);
+      return ['http:', 'https:'].includes(url.protocol) && !url.username && !url.password;
+    })
+    .default('http://127.0.0.1:3000'),
   RIQVO_PC_PORT: z.coerce.number().int().min(1).max(65535).default(4318),
   RIQVO_PC_ARTIFACT_DIR: z
     .string()
@@ -122,6 +130,18 @@ async function main(): Promise<void> {
       const url = new URL(request.url ?? '/', origin);
       if (url.origin !== origin) {
         json(response, 403, { error: 'FORBIDDEN' });
+        return;
+      }
+      if (request.method === 'GET' && url.pathname === '/api/health/ready') {
+        try {
+          const health = await fetch(new URL('/api/health/ready', config.RIQVO_PC_PLATFORM_URL), {
+            signal: AbortSignal.timeout(5000),
+          });
+          if (![200, 503].includes(health.status)) throw new Error('HEALTH_UNAVAILABLE');
+          json(response, health.status, await health.json());
+        } catch {
+          json(response, 502, { error: 'PLATFORM_UNAVAILABLE' });
+        }
         return;
       }
       if (request.method === 'GET' && url.pathname === '/api/pc/bootstrap') {

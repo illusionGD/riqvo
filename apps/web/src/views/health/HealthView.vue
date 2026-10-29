@@ -1,75 +1,54 @@
 <template>
-  <div class="health-view">
-    <header class="health-view__header">
-      <a class="health-view__brand" href="/" aria-label="riqvo 首页">
-        <span class="health-view__mark" aria-hidden="true">r</span>riqvo
-      </a>
-      <span class="health-view__phase">工程基础 · D01</span>
-    </header>
-
-    <main class="health-view__main">
-      <p class="health-view__eyebrow">WEB 自动化测试平台</p>
-      <h1 class="health-view__title">从连接就绪开始。</h1>
-      <p class="health-view__intro">检查平台服务状态，为配置项目和接入执行器做好准备。</p>
-
-      <section
-        class="health-view__panel"
-        aria-labelledby="connection-title"
-        :aria-busy="store.loading"
-      >
-        <div class="health-view__summary">
-          <div>
-            <span
-              class="health-view__indicator"
-              :class="{ 'is-ready': store.ready }"
-              aria-hidden="true"
-            ></span>
-            <h2 id="connection-title" class="health-view__status">{{ title }}</h2>
-            <p class="health-view__description">{{ description }}</p>
-          </div>
-          <NButton
-            class="health-view__refresh"
-            :loading="store.loading"
-            :disabled="store.loading"
-            @click="handleRefresh"
-          >
-            {{ store.loading ? '检查中…' : '重新检查' }}
-          </NButton>
+  <section class="health-view" aria-label="平台服务健康">
+    <section
+      class="health-view__panel"
+      aria-labelledby="connection-title"
+      :aria-busy="store.loading"
+    >
+      <div class="health-view__summary">
+        <div>
+          <span
+            class="health-view__indicator"
+            :class="{ 'is-ready': store.ready }"
+            aria-hidden="true"
+          ></span>
+          <h2 id="connection-title" class="health-view__status">{{ title }}</h2>
+          <p class="health-view__description">{{ description }}</p>
         </div>
+        <NButton
+          class="health-view__refresh"
+          :loading="store.loading"
+          :disabled="store.loading"
+          @click="handleRefresh"
+        >
+          {{ store.loading ? '检查中…' : '重新检查' }}
+        </NButton>
+      </div>
 
-        <NAlert v-if="store.error" class="health-view__error" type="error" role="alert">
-          {{ store.error }}
-        </NAlert>
-        <ul class="health-view__checks" aria-label="依赖服务状态" aria-live="polite">
-          <li v-for="dependency in dependencies" :key="dependency.key" class="health-view__check">
-            <div>
-              <h3>{{ dependency.label }}</h3>
-              <p>{{ dependency.description }}</p>
-            </div>
-            <NTag
-              class="health-view__badge"
-              :type="statusType(dependency.key)"
-              :bordered="false"
-              size="small"
-            >
-              {{ statusText(dependency.key) }}
-            </NTag>
-          </li>
-        </ul>
-        <p class="health-view__updated">
-          {{ store.checkedAt ? `最近检查 ${store.checkedAt}` : '正在建立连接' }}
-        </p>
-      </section>
-
-      <aside class="health-view__note">
-        <h2>管理与执行，各就其位</h2>
-        <p>
-          通过网页管理测试，由执行器控制电脑浏览器或连接的手机。当前已建立工程入口，用例录制和设备绑定将在后续功能中开放。
-        </p>
-      </aside>
-    </main>
-    <footer class="health-view__footer">PC 浏览器 · 安卓 Chrome · iPhone Safari</footer>
-  </div>
+      <NAlert v-if="store.error" class="health-view__error" type="error" role="alert">
+        {{ store.error }}
+      </NAlert>
+      <ul class="health-view__checks" aria-label="依赖服务状态" aria-live="polite">
+        <li v-for="dependency in dependencies" :key="dependency.key" class="health-view__check">
+          <div>
+            <h3>{{ dependency.label }}</h3>
+            <p>{{ dependency.description }}</p>
+          </div>
+          <NTag
+            class="health-view__badge"
+            :type="statusType(dependency.key)"
+            :bordered="false"
+            size="small"
+          >
+            {{ statusText(dependency.key) }}
+          </NTag>
+        </li>
+      </ul>
+      <p class="health-view__updated">
+        {{ store.checkedAt ? `最近检查 ${store.checkedAt}` : '正在建立连接' }}
+      </p>
+    </section>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -129,66 +108,6 @@ function statusType(key: DependencyKey): TagProps['type'] {
 
 <style scoped lang="scss">
 .health-view {
-  min-height: 100vh;
-  padding: 0 var(--space-xl);
-
-  &__header,
-  &__main,
-  &__footer {
-    max-width: 960px;
-    margin: 0 auto;
-  }
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 28px 0;
-    border-bottom: 1px solid var(--color-border);
-  }
-  &__brand {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--color-text);
-    text-decoration: none;
-    font-size: 25px;
-    font-weight: 700;
-    letter-spacing: -1px;
-  }
-  &__mark {
-    display: grid;
-    place-items: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 9px;
-    background: var(--color-accent);
-    color: white;
-    font-size: 27px;
-  }
-  &__phase,
-  &__eyebrow {
-    color: var(--color-muted);
-    font-size: 12px;
-    letter-spacing: 0.07em;
-  }
-  &__main {
-    padding: 60px 0 36px;
-  }
-  &__eyebrow {
-    color: var(--color-accent);
-    font-weight: 600;
-  }
-  &__title {
-    margin: var(--space-md) 0;
-    font-size: clamp(28px, 4vw, 40px);
-    letter-spacing: -1px;
-    font-weight: 600;
-  }
-  &__intro {
-    margin-bottom: 36px;
-    color: var(--color-muted);
-    line-height: 1.7;
-  }
   &__panel {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
@@ -263,32 +182,10 @@ function statusType(key: DependencyKey): TagProps['type'] {
     color: var(--color-muted);
     font-size: 12px;
   }
-  &__note {
-    padding: 24px 0 0;
-    max-width: 680px;
-  }
-  &__note h2 {
-    font-size: 14px;
-    font-weight: 600;
-  }
-  &__note p {
-    color: var(--color-muted);
-    line-height: 1.8;
-    font-size: 13px;
-  }
-  &__footer {
-    padding: 20px 0 28px;
-    font-size: 12px;
-    color: var(--color-muted);
-  }
 }
 
 @media (max-width: 560px) {
   .health-view {
-    padding: 0 var(--space-md);
-    &__main {
-      padding-top: 36px;
-    }
     &__summary {
       align-items: flex-start;
       flex-direction: column;

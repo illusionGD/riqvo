@@ -13,9 +13,13 @@
         </div>
         <span class="pc-view__context">{{ store.draft.target.browser }} · PC</span>
       </header>
-      <NAlert v-if="store.connectionError" type="warning" title="连接中断" role="alert">{{
-        store.connectionError
-      }}</NAlert>
+      <NAlert
+        v-if="store.connectionError && section !== 'health'"
+        type="warning"
+        title="连接中断"
+        role="alert"
+        >{{ store.connectionError }}</NAlert
+      >
       <NAlert v-if="store.error" type="error" title="操作未完成" role="alert">{{
         store.error
       }}</NAlert>
@@ -156,9 +160,10 @@
           ><NEmpty v-else description="选择一个步骤查看详情" />
         </section>
       </div>
-      <div v-show="section !== 'guide'" class="pc-view__panel">
+      <div v-show="section === 'workbench' || section === 'results'" class="pc-view__panel">
         <RunReport :state="store.remote" />
       </div>
+      <HealthView v-if="section === 'health'" />
       <section v-if="section === 'guide'" class="pc-view__panel pc-view__guide">
         <h2>从录制到验证</h2>
         <ol>
@@ -207,12 +212,16 @@ import type { WorkbenchSection } from '../../types/ui';
 import SiteEditor from './components/SiteEditor.vue';
 import StepEditor from './components/StepEditor.vue';
 import RunReport from './components/RunReport.vue';
+import HealthView from '../health/HealthView.vue';
 import { ACTION_LABELS, ISSUE_LABELS, stepSummary } from './pc-labels';
 
 const store = usePcStore();
 const section = ref<WorkbenchSection>('workbench');
 const pageTitle = computed(
-  () => ({ workbench: 'PC 录制与回放', results: '运行结果', guide: '使用说明' })[section.value],
+  () =>
+    ({ workbench: 'PC 录制与回放', results: '运行结果', guide: '使用说明', health: '系统状态' })[
+      section.value
+    ],
 );
 const pageDescription = computed(
   () =>
@@ -220,6 +229,7 @@ const pageDescription = computed(
       workbench: '配置用例，录制浏览器操作，编辑步骤并验证结果。',
       results: '查看最近一次运行的步骤状态与测试证据。',
       guide: '了解录制、编辑与回放的基本流程。',
+      health: '查看平台服务与基础依赖的实际状态。',
     })[section.value],
 );
 const statusLabel = computed(() =>
