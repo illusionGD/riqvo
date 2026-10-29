@@ -21,6 +21,10 @@
 
 沿用已确认的 [总体调研](../research/web-test-platform.md)，本次仅补充工程实现选择。
 
+运行时按用户要求采用 Node 22，推荐版本 22.23.4；最低 22.13.0 满足 pnpm、ESLint 和 Vite 的引擎要求，类型依赖同步为 @types/node 22。
+
+用户补充指定前端组件库为 **Naive UI**，已接入 2.45.3（[官方包元数据](https://registry.npmjs.org/naive-ui)，MIT，Vue 3 peer dependency）。根部 `NConfigProvider` 配置中文 locale、日期 locale 和共享主题，页面使用 `NButton`、`NTag`、`NAlert`；组件按需显式导入，布局保留 SCSS。此调整沿用已有 Web 公共流程测试，不新增与组件内部实现绑定的测试。
+
 | 选项                 | 取舍                                                                      | 结论                                                               |
 | -------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------ |
 | TypeORM 0.3 + mysql2 | TypeScript/NestJS 生态成熟，有显式迁移与记录；需要处理 MySQL DDL 隐式提交 | 本次采用；关闭 synchronize 与 migrationsRun                        |
@@ -32,7 +36,7 @@
 
 | 层                        | 固定并已运行的版本                           |
 | ------------------------- | -------------------------------------------- |
-| Node / pnpm / TypeScript  | 24.19.0 / 11.25.0 / 5.9.3                    |
+| Node / pnpm / TypeScript  | 22.23.4 / 11.25.0 / 5.9.3                    |
 | NestJS / TypeORM / mysql2 | 11.2.8 / 0.3.31 / 3.24.6                     |
 | Vue / Vite / Pinia        | 3.5.44 / 8.3.5 / 3.0.4                       |
 | MySQL / Redis             | 8.4.13 / 7.4.12；Compose 同时固定镜像 digest |

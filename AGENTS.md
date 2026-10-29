@@ -2,6 +2,12 @@
 
 开发前阅读 `docs/plan.md`、`docs/progress.md`、适用的 `.codex/rules` 和 skills，沿用已确认的功能范围与测试边界。
 
+前端采用 Vue 3 + TypeScript + Pinia，组件库使用用户指定的 **Naive UI**。优先复用其组件，按需显式导入，通过根部 NConfigProvider 统一中文 locale 与主题；页面布局和业务逻辑仍遵循现有前端 rules。
+
+Node.js 使用用户指定的 **22** 主版本；推荐补丁版本见 `.node-version`，最低版本遵循 `package.json` engines。类型声明使用 `@types/node` 22，验证必须实际运行在 Node 22 下，不能用其他主版本的结果替代。
+
+NestJS 后端目录使用 `apps/server`，工作区包名为 `@riqvo/server`；命令、测试和文档引用保持一致。
+
 ## 功能交付流程
 
 用户已明确要求，后续每个功能按以下顺序交付：

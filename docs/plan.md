@@ -41,12 +41,12 @@
 
 foundation、data-foundation 的内容属于 Memory Weave，未将其中的业务模型、数据库组合、固定版本或仓库操作授权用于 riqvo；plugin-article 用于文章写作，本次不适用。rules 中部分链接仍指向旧的 .cursor/.mdc 路径，实际依据为本仓库以上两份 .codex/rules/*.md。
 
-工程采用 pnpm workspace，按下面的边界维护；Node、pnpm、数据库、浏览器及驱动的具体兼容版本在 D01 和 M0 固定并记录。
+工程采用 pnpm workspace，按下面的边界维护；前端组件库已按用户要求确定为 Naive UI，Node.js 主版本为 22。Node、pnpm、数据库、浏览器及驱动的具体兼容版本在 D01 和 M0 固定并记录。
 
 | 模块                                      | 技术与职责                                                                                                        |
 | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | apps/web                                  | Vue 3 + Vite + TypeScript + Pinia；页面装配、录制及编辑界面、报告                                                 |
-| apps/api                                  | NestJS + TypeScript 模块化单体；认证、项目、用例、环境、任务、产物与 AI 管理                                      |
+| apps/server                               | NestJS + TypeScript 模块化单体；认证、项目、用例、环境、任务、产物与 AI 管理                                      |
 | apps/runner                               | 独立执行核心；本机以自研桌面执行器 App 接入，也可部署为服务器进程；测试电脑、安卓主机及 Mac/iPhone 节点按能力接入 |
 | packages/contracts、test-engine           | 统一步骤、版本、任务、结果协议及执行流程；人工录制与 AI 生成共用                                                  |
 | packages/driver-playwright、driver-appium | PC 使用 Playwright；真机使用 WebdriverIO + Appium                                                                 |

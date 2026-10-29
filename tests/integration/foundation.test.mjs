@@ -15,7 +15,7 @@ test(
   { timeout: 30000 },
   async (t) => {
     const port = await freePort();
-    const api = runNode('apps/api/dist/main.js', [], { API_PORT: String(port) });
+    const api = runNode('apps/server/dist/main.js', [], { API_PORT: String(port) });
     t.after(() => api.stop());
     await waitForHttp(`http://127.0.0.1:${port}/api/health/live`, api);
     const missing = await fetch(`http://127.0.0.1:${port}/api/health/ready`);
@@ -26,17 +26,17 @@ test(
       artifacts: 'ready',
     });
 
-    const pending = await runNode('apps/api/dist/database/migrate.js', ['status']).done;
+    const pending = await runNode('apps/server/dist/database/migrate.js', ['status']).done;
     assert.equal(pending.code, 0, pending.output);
     assert.deepEqual(JSON.parse(pending.output), { status: 'ok', pending: true });
 
-    const first = await runNode('apps/api/dist/database/migrate.js', ['up']).done;
+    const first = await runNode('apps/server/dist/database/migrate.js', ['up']).done;
     assert.equal(first.code, 0, first.output);
     assert.deepEqual(JSON.parse(first.output), { status: 'ok', applied: 1 });
-    const second = await runNode('apps/api/dist/database/migrate.js', ['up']).done;
+    const second = await runNode('apps/server/dist/database/migrate.js', ['up']).done;
     assert.equal(second.code, 0, second.output);
     assert.deepEqual(JSON.parse(second.output), { status: 'ok', applied: 0 });
-    const state = await runNode('apps/api/dist/database/migrate.js', ['status']).done;
+    const state = await runNode('apps/server/dist/database/migrate.js', ['status']).done;
     assert.equal(state.code, 0, state.output);
     assert.deepEqual(JSON.parse(state.output), { status: 'ok', pending: false });
 
@@ -54,7 +54,7 @@ test(
   'runner observes a real API and reconnects after the service restarts',
   { timeout: 25000 },
   async (t) => {
-    const migration = await runNode('apps/api/dist/database/migrate.js', ['up']).done;
+    const migration = await runNode('apps/server/dist/database/migrate.js', ['up']).done;
     assert.equal(migration.code, 0, migration.output);
     const port = await freePort();
     const runnerEnv = {
@@ -77,7 +77,7 @@ test(
       assert.fail(`Runner did not reach ${state}: ${runner.output()}`);
     }
     await waitForState('unreachable');
-    const api = runNode('apps/api/dist/main.js', [], { API_PORT: String(port) });
+    const api = runNode('apps/server/dist/main.js', [], { API_PORT: String(port) });
     t.after(() => api.stop());
     await waitForHttp(`http://127.0.0.1:${port}/api/health/live`, api);
     await waitForState('ready');
@@ -90,7 +90,7 @@ test(
     });
     await api.stop();
     await waitForState('unreachable', 2);
-    const restarted = runNode('apps/api/dist/main.js', [], { API_PORT: String(port) });
+    const restarted = runNode('apps/server/dist/main.js', [], { API_PORT: String(port) });
     t.after(() => restarted.stop());
     await waitForState('ready', 2);
     await runner.stop();
@@ -102,11 +102,11 @@ test(
   'the built web page shows real dependency readiness through its API proxy',
   { timeout: 20000 },
   async (t) => {
-    const migration = await runNode('apps/api/dist/database/migrate.js', ['up']).done;
+    const migration = await runNode('apps/server/dist/database/migrate.js', ['up']).done;
     assert.equal(migration.code, 0, migration.output);
     const apiPort = await freePort();
     const webPort = await freePort();
-    const api = runNode('apps/api/dist/main.js', [], { API_PORT: String(apiPort) });
+    const api = runNode('apps/server/dist/main.js', [], { API_PORT: String(apiPort) });
     t.after(() => api.stop());
     await waitForHttp(`http://127.0.0.1:${apiPort}/api/health/live`, api);
     const web = runNode(

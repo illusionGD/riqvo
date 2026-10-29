@@ -4,16 +4,16 @@
   "private": true,
   "packageManager": "pnpm@11.25.0",
   "engines": {
-    "node": ">=24.19.0 <25",
+    "node": ">=22.13.0 <23",
     "pnpm": "11.25.0"
   },
   "scripts": {
     "env:init": "node scripts/setup.mjs",
     "infra:up": "docker compose up -d --wait --wait-timeout 120",
     "infra:stop": "docker compose stop",
-    "db:migrate": "pnpm --filter @riqvo/api db:migrate",
-    "db:status": "pnpm --filter @riqvo/api db:status",
-    "dev": "concurrently --kill-others --names api,web,runner \"pnpm --filter @riqvo/api dev\" \"pnpm --filter @riqvo/web dev\" \"pnpm --filter @riqvo/runner dev\"",
+    "db:migrate": "pnpm --filter @riqvo/server db:migrate",
+    "db:status": "pnpm --filter @riqvo/server db:status",
+    "dev": "concurrently --kill-others --names server,web,runner \"pnpm --filter @riqvo/server dev\" \"pnpm --filter @riqvo/web dev\" \"pnpm --filter @riqvo/runner dev\"",
     "build": "pnpm -r build",
     "lint": "eslint apps scripts tests eslint.config.mjs --max-warnings 0",
     "typecheck": "pnpm -r typecheck",
@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
-    "@types/node": "24.19.2",
+    "@types/node": "22.20.5",
     "concurrently": "10.0.6",
     "eslint": "10.13.0",
     "eslint-plugin-vue": "10.12.0",

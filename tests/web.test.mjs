@@ -9,7 +9,7 @@ test(
   async (t) => {
     const apiPort = await freePort();
     const webPort = await freePort();
-    const api = runNode('apps/api/dist/main.js', [], {
+    const api = runNode('apps/server/dist/main.js', [], {
       API_PORT: String(apiPort),
       MYSQL_HOST: '127.0.0.1',
       MYSQL_PORT: '1',

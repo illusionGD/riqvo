@@ -126,7 +126,7 @@ NestJS 管理任务、授权、调度及结果；团队 AI 决策和模型调用
 riqvo/
 ├── apps/
 │   ├── web/                    # Vue 管理台、步骤编辑器、录制界面
-│   ├── api/                    # NestJS 后端，统一管理业务与调度
+│   ├── server/                    # NestJS 后端，统一管理业务与调度
 │   └── runner/                 # Node.js/TypeScript 执行程序
 ├── packages/
 │   ├── contracts/              # API、任务、用例步骤、结果的 schema 与类型

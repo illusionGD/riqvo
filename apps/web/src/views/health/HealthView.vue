@@ -27,29 +27,33 @@
             <h2 id="connection-title" class="health-view__status">{{ title }}</h2>
             <p class="health-view__description">{{ description }}</p>
           </div>
-          <button
+          <NButton
             class="health-view__refresh"
-            type="button"
+            :loading="store.loading"
             :disabled="store.loading"
             @click="handleRefresh"
           >
             {{ store.loading ? '检查中…' : '重新检查' }}
-          </button>
+          </NButton>
         </div>
 
-        <p v-if="store.error" class="health-view__error" role="alert">{{ store.error }}</p>
+        <NAlert v-if="store.error" class="health-view__error" type="error" role="alert">
+          {{ store.error }}
+        </NAlert>
         <ul class="health-view__checks" aria-label="依赖服务状态" aria-live="polite">
           <li v-for="dependency in dependencies" :key="dependency.key" class="health-view__check">
             <div>
               <h3>{{ dependency.label }}</h3>
               <p>{{ dependency.description }}</p>
             </div>
-            <span
+            <NTag
               class="health-view__badge"
-              :class="{ 'is-ready': store.snapshot?.checks[dependency.key] === 'ready' }"
+              :type="statusType(dependency.key)"
+              :bordered="false"
+              size="small"
             >
               {{ statusText(dependency.key) }}
-            </span>
+            </NTag>
           </li>
         </ul>
         <p class="health-view__updated">
@@ -70,6 +74,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue';
+import { NAlert, NButton, NTag, type TagProps } from 'naive-ui';
 import { useHealthStore } from '../../stores/health';
 import type { HealthSnapshot } from '../../types/health';
 
@@ -106,6 +111,19 @@ function statusText(key: DependencyKey): string {
   const status = store.snapshot?.checks[key];
   if (!status) return store.loading ? '检查中' : '未连接';
   return { ready: '已就绪', unavailable: '不可用', migration_required: '待初始化' }[status];
+}
+
+/**
+ * Distinguish a failed dependency from an unchecked or uninitialized one.
+ * @param key Dependency shown by the current row.
+ * @returns The corresponding Naive UI status treatment.
+ */
+function statusType(key: DependencyKey): TagProps['type'] {
+  const status = store.snapshot?.checks[key];
+  if (!status) return 'default';
+  return { ready: 'success', unavailable: 'error', migration_required: 'warning' }[
+    status
+  ] as TagProps['type'];
 }
 </script>
 
@@ -208,20 +226,6 @@ function statusText(key: DependencyKey): string {
   }
   &__refresh {
     flex-shrink: 0;
-    padding: 10px 16px;
-    border: 1px solid var(--color-border);
-    border-radius: 8px;
-    background: var(--color-surface);
-    color: var(--color-text);
-    cursor: pointer;
-  }
-  &__refresh:hover {
-    border-color: var(--color-accent);
-    color: var(--color-accent);
-  }
-  &__refresh:disabled {
-    opacity: 0.6;
-    cursor: wait;
   }
   &__checks {
     list-style: none;
@@ -248,23 +252,9 @@ function statusText(key: DependencyKey): string {
   }
   &__badge {
     flex-shrink: 0;
-    padding: 5px 10px;
-    border-radius: 6px;
-    color: var(--color-error);
-    background: var(--color-error-bg);
-    font-size: 12px;
-  }
-  &__badge.is-ready {
-    color: var(--color-accent);
-    background: var(--color-success-bg);
   }
   &__error {
-    color: var(--color-error);
-    background: var(--color-error-bg);
-    padding: var(--space-md);
     margin: 0 28px 20px;
-    border-radius: 8px;
-    font-size: 14px;
   }
   &__updated {
     border-top: 1px solid var(--color-border);

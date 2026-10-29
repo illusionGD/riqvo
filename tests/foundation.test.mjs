@@ -7,7 +7,7 @@ test(
   { timeout: 15000 },
   async (t) => {
     const port = await freePort();
-    const api = runNode('apps/api/dist/main.js', [], {
+    const api = runNode('apps/server/dist/main.js', [], {
       API_PORT: String(port),
       MYSQL_DATABASE: 'riqvo_test',
       MYSQL_USER: 'test',
@@ -25,7 +25,7 @@ test(
   { timeout: 10000 },
   async () => {
     const marker = 'test-value-that-must-not-be-logged';
-    const result = await runNode('apps/api/dist/main.js', [], {
+    const result = await runNode('apps/server/dist/main.js', [], {
       API_PORT: 'invalid',
       MYSQL_DATABASE: 'riqvo_test',
       MYSQL_USER: 'test',
@@ -73,7 +73,7 @@ test(
   { timeout: 15000 },
   async (t) => {
     const port = await freePort();
-    const api = runNode('apps/api/dist/main.js', [], {
+    const api = runNode('apps/server/dist/main.js', [], {
       API_PORT: String(port),
       MYSQL_HOST: '127.0.0.1',
       MYSQL_PORT: '1',

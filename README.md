@@ -4,9 +4,11 @@
 
 当前已完成 **D01 工程基础**：Web 管理台入口、NestJS API、执行器进程入口、真实依赖检查、数据库迁移及开发验证。录制、测试任务、登录、真机控制和桌面安装包按后续功能交付。每个功能完成并验证后，提交并 push 到 `dev`，随后暂停，等待用户 review 再继续。协作约定见 [AGENTS.md](AGENTS.md)。
 
+前端采用 Vue 3 + TypeScript + Pinia + **Naive UI**。根部 `NConfigProvider` 统一中文 locale 和主题，组件按需显式导入，布局样式使用 SCSS。
+
 ## 本地开发
 
-准备 Node.js **24.19.0**（版本文件见 `.node-version`）、pnpm **11.25.0**、Docker Engine / Docker Desktop 和 Compose v2。在仓库根目录执行：
+准备 Node.js **22**（推荐 **22.23.4**，最低 **22.13.0**；版本文件见 `.node-version`）、pnpm **11.25.0**、Docker Engine / Docker Desktop 和 Compose v2。在仓库根目录执行：
 
 ```bash
 pnpm install --frozen-lockfile
@@ -24,9 +26,10 @@ pnpm dev
 - API 启动不运行迁移；修改端口时，同步调整 `.env` 的 `WEB_API_PROXY_TARGET` 及 `.env.runner` 的 `RUNNER_API_URL`。
 - `ARTIFACT_DIR` 的相对路径始终以仓库为基准；默认 `.local/artifacts`。当前只验证读写能力，正式上传/下载和保留策略在 D16/D18 实现。
 
-云环境若用户目录不可写，安装前为 pnpm 指定工作区目录：
+本云环境已在工作区安装 Node 22；新终端先激活它，并为 pnpm 指定工作区目录，避免使用系统默认 Node 或不可写的用户目录：
 
 ```bash
+export PATH="/workspace/riqvo/.cache/toolchains/node-v22.23.4-linux-x64/bin:$PATH"
 export PNPM_HOME=/workspace/riqvo/.cache/pnpm/home
 pnpm install --frozen-lockfile
 ```
@@ -44,7 +47,7 @@ pnpm --filter @riqvo/runner check
 
 `GET /api/health/live` 检查进程存活；`GET /api/health/ready` 实际检查 MySQL 连接与 schema、Redis PING、产物目录写入/读回/删除。依赖未就绪返回 **503**，未迁移的 MySQL 显示 `migration_required`。响应不返回地址、文件路径或凭据。
 
-构建后可分别使用 `pnpm --filter @riqvo/api start`、`pnpm --filter @riqvo/runner start` 运行编译产物；`pnpm --filter @riqvo/web preview` 预览前端构建。Vite preview 仅用于开发验收。执行器目前只主动检查 API、记录状态变化和重连，不宣称已经注册节点或具备执行测试的能力。
+构建后可分别使用 `pnpm --filter @riqvo/server start`、`pnpm --filter @riqvo/runner start` 运行编译产物；`pnpm --filter @riqvo/web preview` 预览前端构建。Vite preview 仅用于开发验收。执行器目前只主动检查 API、记录状态变化和重连，不宣称已经注册节点或具备执行测试的能力。
 
 ## 自动验证
 
@@ -72,7 +75,7 @@ RIQVO_CHROMIUM_EXECUTABLE=/usr/bin/chromium pnpm test:integration
 
 ```text
 apps/web        Vue 3 + Vite + Pinia 管理台
-apps/api        NestJS API、配置、依赖检查、TypeORM 迁移
+apps/server        NestJS API、配置、依赖检查、TypeORM 迁移
 apps/runner     独立执行核心入口，后续由桌面 App 或服务器进程承载
 scripts         配置初始化、隔离集成测试编排
 tests           HTTP / CLI / 真实浏览器公共边界验证

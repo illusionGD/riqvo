@@ -9,16 +9,16 @@ description: riqvo 的 D01 工程结构、启动命令、真实依赖检查和�
 
 ## 运行
 
-在仓库根目录使用 Node 24.19.0、pnpm 11.25.0，执行 `pnpm install --frozen-lockfile`。`pnpm env:init` 只创建缺失的 `.env` / `.env.runner`，保留已有设置。使用当前 checkout，除非用户明确要求，不新建 worktree。
+在仓库根目录使用用户指定的 Node 22（推荐 22.23.4，最低 22.13.0）、pnpm 11.25.0，执行 `pnpm install --frozen-lockfile`。使用 `@types/node` 22 并在真实 Node 22 下验证。`pnpm env:init` 只创建缺失的 `.env` / `.env.runner`，保留已有设置。使用当前 checkout，除非用户明确要求，不新建 worktree。
 
 `pnpm infra:up` → `pnpm db:migrate` → `pnpm dev`。只重启本任务启动的进程。Docker 数据默认保留，不能为解决连接错误直接删除开发 volumes。先检查端口、运行状态与配置是否匹配。
 
-云环境若用户目录不可写，可为安装命令设置 `PNPM_HOME=/workspace/riqvo/.cache/pnpm/home`。读云环境运行 skill 后再做网络或 Docker 操作，保留代理与 TLS 校验。服务进程不能假定跨云环境任务继续运行。
+本云环境的 Node 22 已安装在 `/workspace/riqvo/.cache/toolchains/node-v22.23.4-linux-x64/bin`；每个新 shell 把此目录放在 PATH 前端，并用 `node --version` 和 `pnpm exec node --version` 检查实际版本。用户目录不可写时，为安装命令设置 `PNPM_HOME=/workspace/riqvo/.cache/pnpm/home`。读云环境运行 skill 后再做网络或 Docker 操作，保留代理与 TLS 校验。服务进程不能假定跨云环境任务继续运行。
 
 ## 代码边界
 
-- apps/web：Vue SFC、Pinia Setup Store，遵守 `.codex/rules`；页面 → store/service，外部响应先校验再使用。
-- apps/api：NestJS 模块化应用。配置只返回字段名错误，不回显值；数据库迁移与应用启动分开，禁用 synchronize/自动迁移。
+- apps/web：Vue SFC、Pinia Setup Store、Naive UI，遵守 `.codex/rules`；页面 → store/service，外部响应先校验再使用。库组件按需显式导入，根部 NConfigProvider 统一中文 locale 和主题，主题配置在 `apps/web/src/constants/ui-theme.ts`。
+- apps/server：NestJS 模块化应用。配置只返回字段名错误，不回显值；数据库迁移与应用启动分开，禁用 synchronize/自动迁移。
 - apps/runner：独立执行核心入口，主动访问后端；配置在 `.env.runner`，不复制服务器数据库或团队模型密钥。D01 仅连通检查，不宣称任务执行。
 - 新增业务 schema 用新 migration，保留已有迁移；MySQL DDL 不能视为可完整回滚事务。更新 schema 时同步考虑就绪检查的 revision 兼容性。
 - 产物与代码分开保存在配置目录，不能直接暴露整个产物目录作为公开静态资源。
