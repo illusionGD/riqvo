@@ -6,29 +6,50 @@
     'Segoe UI',
     'PingFang SC',
     sans-serif;
-  color: #22312d;
-  background: #f4f6f3;
+  color: var(--color-text);
+  background: var(--color-background);
+  color-scheme: light;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   --color-surface: #fff;
-  --color-text: #22312d;
-  --color-muted: #67756e;
-  --color-border: #dde5de;
-  --color-accent: #166c55;
+  --color-background: #f3f5f9;
+  --color-subtle: #f8f9fc;
+  --color-selected: #edf0ff;
+  --color-text: #253044;
+  --color-muted: #758097;
+  --color-border: #e3e7ee;
+  --color-accent: #5269d8;
   --color-success-bg: #edf7ef;
-  --color-error: #a23d2b;
+  --color-error: #b84242;
   --color-error-bg: #fff3ed;
   --space-sm: 0.5rem;
   --space-md: 1rem;
   --space-lg: 1.5rem;
   --space-xl: 2rem;
-  --radius-card: 1rem;
+  --radius-card: 8px;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-background: #141820;
+  --color-surface: #1e242e;
+  --color-subtle: #222a36;
+  --color-selected: #2b3653;
+  --color-text: #e5e9f1;
+  --color-muted: #9daac0;
+  --color-border: #323c4b;
+  --color-accent: #a1b1ff;
+  --color-success-bg: #183a30;
+  --color-error: #ee9999;
+  --color-error-bg: #44272b;
 }
 
 * {
   box-sizing: border-box;
 }
 body {
+  background: var(--color-background);
+  color: var(--color-text);
   margin: 0;
   min-width: 320px;
 }

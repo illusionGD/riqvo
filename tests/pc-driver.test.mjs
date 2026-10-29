@@ -196,3 +196,29 @@ test('文件选择、iframe 内交互和弹窗明确中止采集', { timeout: 20
     await session.finish(page);
   }
 });
+
+test('录制在操作发生时通知新步骤和异常，通知中不包含密码值', { timeout: 15000 }, async (t) => {
+  const { task, artifactDir, origin } = await fixture(t);
+  const session = await openPcBrowser('chromium', 'background', false, {
+    artifactDir,
+    executablePath: process.env.RIQVO_CHROMIUM_EXECUTABLE,
+  });
+  t.after(() => session.finish());
+  const changes = [];
+  const recording = await attachPcRecorder(session.context, task, (state) => changes.push(state));
+  const page = await session.context.newPage();
+  await page.goto(origin);
+  await page.getByTestId('username').fill('tester');
+  await page.getByTestId('password').fill('riqvo-demo');
+  await page.getByTestId('password').press('Enter');
+  await recording.stop();
+  assert.ok(
+    changes.some((state) =>
+      state.task.case.steps.some(
+        (step) => step.action === 'fill' && step.value.source === 'variable',
+      ),
+    ),
+  );
+  assert.equal(changes.at(-1).issue, 'KEYBOARD_ACTION');
+  assert.equal(JSON.stringify(changes).includes('riqvo-demo'), false);
+});

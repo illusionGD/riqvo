@@ -4,7 +4,7 @@
 
 当前已完成 **D01 工程基础**、**D02 最小协议/可控测试站**与 **D03 PC 录制回放原型**。PC 工作台支持受控浏览器录制、步骤编辑、双环境回放、截图和录像；平台设备注册、正式用例库、手机控制、AI 和桌面安装包按后续功能交付。每个功能完成并验证后，提交并 push 到 `dev`，随后暂停，等待用户 review 再继续。协作约定见 [AGENTS.md](AGENTS.md)。
 
-前端采用 Vue 3 + TypeScript + Pinia + **Naive UI**。根部 `NConfigProvider` 统一中文 locale 和主题，组件按需显式导入，布局样式使用 SCSS。
+前端采用 Vue 3 + TypeScript + Pinia + **Naive UI**。PC 工作台采用侧栏导航、顶部状态栏与主工作区布局，支持浅色、深色和跟随系统的主题切换。根部 `NConfigProvider` 统一中文 locale 与组件主题，布局样式使用 SCSS。
 
 当前范围：自管 PC、安卓和 iPhone；第三方真机接入暂缓。保留普通固定步骤定时回放和飞书周期更新检查，不做 AI 定时生成、探索、分析或修复。团队模型可选，个人模型可独立用于 AI 功能。
 
@@ -99,6 +99,8 @@ pnpm pc:start
 选择 Chrome/Edge 需要本机安装对应浏览器；也可通过 `RIQVO_CHROME_EXECUTABLE` / `RIQVO_EDGE_EXECUTABLE` 指定真实路径。Linux 可视模式需图形桌面或显式设置 `DISPLAY`。本工作台不是已经接入平台的远程设备服务。
 
 密码录制为变量引用，运行前在页面补填；导出用例不包含运行变量值。草稿需显式导出保存，刷新会丢弃未导出的编辑。媒体默认保存在 `.local/pc-artifacts`，本原型尚无自动过期清理或持久报告索引。
+
+工作台通过 `/api/pc/events` 的 SSE 长连接接收录制步骤和运行进度，不再每 500ms 请求 `/api/pc/state`。断线后自动退避重连，重新认证并同步最新完整状态；开始、停止等操作继续走 HTTP。网络面板中事件流持续处于连接中属于正常情况。
 
 当前支持普通导航和表单流程；遇到文件选择、iframe 内操作、弹窗、拖拽等未支持交互会提示。完整启动配置、公共接口、验收与限制见 [D03 说明](docs/features/d03-pc-workbench.md)。
 

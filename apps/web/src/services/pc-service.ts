@@ -54,8 +54,8 @@ const stateSchema = z.object({
 let token = '';
 
 /** 初始化本机会话；令牌只用于当前工作台控制，不作为模型凭据。 */
-async function connect(): Promise<void> {
-  const response = await fetch('/api/pc/bootstrap', { cache: 'no-store' });
+async function connect(signal: AbortSignal = AbortSignal.timeout(5000)): Promise<void> {
+  const response = await fetch('/api/pc/bootstrap', { cache: 'no-store', signal });
   if (!response.ok) throw new Error('无法连接本机执行器，请确认执行器已启动。');
   const value: unknown = await response.json();
   token = z.object({ token: z.string().regex(/^[a-f0-9]{64}$/) }).parse(value).token;
@@ -83,12 +83,79 @@ async function request(path: string, value?: unknown): Promise<unknown> {
   return response.json() as Promise<unknown>;
 }
 
-/** 获取并校验完整状态；已完成结果必须与实际运行快照一致。 */
-export async function getPcState(): Promise<PcState> {
-  const value = stateSchema.parse(await request('state'));
+/** 校验推送快照；完成结果必须对应同一份实际运行任务。 */
+function parseState(input: unknown): PcState {
+  const value = stateSchema.parse(input);
   const draft = value.draft ? parseTask(value.draft) : undefined;
   const result = value.result && draft ? parseRunResult(draft, value.result) : undefined;
   return { ...value, draft, result };
+}
+
+/**
+ * 建立同源 SSE；每次重连先重新认证，以适应执行器重启后的令牌轮换。
+ * @param onState 收到合法完整快照时调用。
+ * @param onDisconnected 断开或消息无效时反馈状态，不覆盖用户操作错误。
+ * @returns 取消连接、待执行重试及初始化请求的清理函数。
+ */
+export function subscribePcState(
+  onState: (state: PcState) => void,
+  onDisconnected: (message: string) => void,
+): () => void {
+  let closed = false;
+  let source: EventSource | undefined;
+  let controller: AbortController | undefined;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let retryDelay = 1000;
+
+  /** 由单一退避定时器重连，避免原生重试与重新认证同时产生连接。 */
+  function retry(message: string): void {
+    if (closed) return;
+    source?.close();
+    source = undefined;
+    controller?.abort();
+    onDisconnected(message);
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      void open();
+    }, retryDelay);
+    retryDelay = Math.min(retryDelay * 2, 15000);
+  }
+
+  /** 初始化 Cookie 后再打开只读事件流，首条消息就是最新快照。 */
+  async function open(): Promise<void> {
+    controller = new AbortController();
+    try {
+      await connect(AbortSignal.any([controller.signal, AbortSignal.timeout(5000)]));
+      if (closed) return;
+      const current = new EventSource('/api/pc/events');
+      source = current;
+      current.addEventListener('state', (event: MessageEvent<string>) => {
+        if (closed || source !== current) return;
+        try {
+          const input: unknown = JSON.parse(event.data);
+          const state = parseState(input);
+          retryDelay = 1000;
+          onState(state);
+        } catch {
+          retry('执行器状态无效，正在重新连接。');
+        }
+      });
+      current.onerror = () => {
+        if (!closed && source === current) retry('执行器连接中断，正在重新连接。');
+      };
+    } catch {
+      retry('执行器连接中断，正在重新连接。');
+    }
+  }
+
+  void open();
+  return () => {
+    closed = true;
+    clearTimeout(timer);
+    controller?.abort();
+    source?.close();
+    source = undefined;
+  };
 }
 /** 按已校验任务开始新的可视录制。 */
 export async function startRecording(task: TestTask): Promise<void> {

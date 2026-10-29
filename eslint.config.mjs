@@ -9,7 +9,14 @@ export default ts.config(
   ...vue.configs['flat/essential'],
   {
     files: ['tests/**/*.mjs'],
-    languageOptions: { globals: { document: 'readonly', window: 'readonly' } },
+    languageOptions: {
+      globals: {
+        document: 'readonly',
+        window: 'readonly',
+        TextDecoder: 'readonly',
+        getComputedStyle: 'readonly',
+      },
+    },
   },
   {
     files: [
@@ -27,6 +34,8 @@ export default ts.config(
         HTMLTextAreaElement: 'readonly',
         Blob: 'readonly',
         Event: 'readonly',
+        EventSource: 'readonly',
+        MessageEvent: 'readonly',
       },
     },
   },

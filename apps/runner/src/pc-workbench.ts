@@ -37,6 +37,7 @@ export class WorkbenchError extends Error {
  */
 export function createPcWorkbench(config: WorkbenchConfig) {
   const state: WorkbenchState = { mode: 'idle', recordingArtifacts: [], progress: [] };
+  const listeners = new Set<(state: WorkbenchState) => void>();
   const artifacts = new Map<string, 'screenshot' | 'video'>();
   let controller: AbortController | undefined;
   let session: PcBrowserSession | undefined;
@@ -82,17 +83,25 @@ export function createPcWorkbench(config: WorkbenchConfig) {
     finishing = undefined;
   };
   const snapshot = (): WorkbenchState => {
-    if (recorder) {
-      const recorded = recorder.snapshot();
-      state.draft = recorded.task;
-      state.issue = recorded.issue ?? state.issue;
-    }
     return structuredClone(state);
+  };
+  /** 只在状态变更时通知，不通过后台定时器读取快照。 */
+  const publish = (): void => {
+    for (const listener of listeners) listener(snapshot());
+  };
+  /** 每次连接立即同步完整状态，断线期间不需要保存历史消息。 */
+  const subscribe = (listener: (state: WorkbenchState) => void): (() => void) => {
+    listeners.add(listener);
+    listener(snapshot());
+    return () => {
+      listeners.delete(listener);
+    };
   };
   const stopRecording = async (): Promise<void> => {
     if (finishing) return finishing;
     if (!recorder || !session) throw new WorkbenchError('NOT_RECORDING');
     state.mode = 'finishing';
+    publish();
     const current = session;
     finishing = (async () => {
       try {
@@ -108,12 +117,14 @@ export function createPcWorkbench(config: WorkbenchConfig) {
         recorder = undefined;
         session = undefined;
         state.mode = 'idle';
+        publish();
       }
     })();
     return finishing;
   };
   return {
     snapshot,
+    subscribe,
     artifacts,
     record(input: unknown): void {
       idle();
@@ -133,6 +144,7 @@ export function createPcWorkbench(config: WorkbenchConfig) {
       const url = prepared.steps[0].url;
       reset(task);
       state.mode = 'opening';
+      publish();
       work = (async () => {
         try {
           session = await openPcBrowser(name, 'visible', task.artifacts.includes('video'), {
@@ -140,11 +152,16 @@ export function createPcWorkbench(config: WorkbenchConfig) {
             executablePath: config.browserPaths[name],
           });
           if (controller?.signal.aborted) throw new Error('CANCELLED');
-          recorder = await attachPcRecorder(session.context, initial);
+          recorder = await attachPcRecorder(session.context, initial, (recorded) => {
+            state.draft = recorded.task;
+            state.issue = recorded.issue ?? state.issue;
+            publish();
+          });
           page = await session.context.newPage();
           await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
           if (controller?.signal.aborted) throw new Error('CANCELLED');
           state.mode = 'recording';
+          publish();
           page.once('close', () => {
             if (state.mode === 'recording') void stopRecording();
           });
@@ -154,6 +171,7 @@ export function createPcWorkbench(config: WorkbenchConfig) {
           else {
             if (session) await session.finish(page);
             state.mode = 'idle';
+            publish();
           }
         }
       })();
@@ -171,6 +189,7 @@ export function createPcWorkbench(config: WorkbenchConfig) {
       }
       reset(task);
       state.mode = 'running';
+      publish();
       work = (async () => {
         try {
           state.result = await runPcTask(task, {
@@ -179,6 +198,7 @@ export function createPcWorkbench(config: WorkbenchConfig) {
             signal: controller?.signal,
             onStep(step) {
               state.progress.push(step);
+              publish();
             },
           });
           register(state.result.artifacts);
@@ -186,6 +206,7 @@ export function createPcWorkbench(config: WorkbenchConfig) {
           state.issue = 'RUN_FAILED';
         } finally {
           state.mode = 'idle';
+          publish();
         }
       })();
     },

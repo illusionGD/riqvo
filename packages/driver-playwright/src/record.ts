@@ -72,11 +72,13 @@ function navigation(url: string, task: TestTask): Extract<TestStep, { action: 'n
  * 将公开浏览器上下文接入录制，采集真实事件并生成 D02 协议步骤。
  * @param context 调用方独占的受控上下文。
  * @param input 环境、目标及初始导航快照；旧步骤不会被追加录制修改。
+ * @param onChange 可选变更通知；仅发送已校验且不含密码值的完整草稿。
  * @returns 可读取、停止的录制会话，页面和视频由调用方清理。
  */
 export async function attachPcRecorder(
   context: BrowserContext,
   input: unknown,
+  onChange?: (state: RecordingSnapshot) => void,
 ): Promise<PcRecorder> {
   const task = parseTask(input);
   const first = task.case.steps[0];
@@ -97,6 +99,7 @@ export async function attachPcRecorder(
   const fail = (code: string): void => {
     issue ??= code;
     active = false;
+    onChange?.(snapshot());
   };
   const append = (step: TestStep): void => {
     if (!active) return;
@@ -117,6 +120,7 @@ export async function attachPcRecorder(
     }
     try {
       task.case.steps = parseTask({ ...task, case: { ...task.case, steps } }).case.steps;
+      onChange?.(snapshot());
     } catch {
       fail('UNSUPPORTED_INTERACTION');
     }
@@ -173,6 +177,7 @@ export async function attachPcRecorder(
           case: { ...task.case, steps: [{ ...step, id: 'step_1' }] },
         }).case.steps;
         firstNavigation = false;
+        onChange?.(snapshot());
       } else append(clickedSinceNavigation ? { ...step, action: 'assertUrl' } : step);
       clickedSinceNavigation = false;
       parseTask(task);

@@ -6,6 +6,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { extname, join, resolve } from 'node:path';
 import { z } from 'zod';
 import { createPcWorkbench, WorkbenchError } from './pc-workbench';
+import { streamPcEvents } from './pc-events';
 
 const configSchema = z.object({
   RIQVO_PC_PORT: z.coerce.number().int().min(1).max(65535).default(4318),
@@ -138,6 +139,10 @@ async function main(): Promise<void> {
           .some((part) => part.trim() === `${cookieName}=${token}`);
         if (!headerAuth && !(request.method === 'GET' && cookieAuth)) {
           json(response, 403, { error: 'FORBIDDEN' });
+          return;
+        }
+        if (request.method === 'GET' && url.pathname === '/api/pc/events') {
+          streamPcEvents(response, workbench.subscribe);
           return;
         }
         if (request.method === 'GET' && url.pathname === '/api/pc/state') {

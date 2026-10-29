@@ -39,6 +39,7 @@ export const usePcStore = defineStore('pc', () => {
   const error = ref('');
   const loading = ref(false);
   const connected = ref(false);
+  const connectionError = ref('');
   const busy = computed(() => loading.value || !!(remote.value && remote.value.mode !== 'idle'));
   const selectedStep = computed(() =>
     draft.value.case.steps.find((step) => step.id === selectedId.value),
@@ -64,41 +65,34 @@ export const usePcStore = defineStore('pc', () => {
     }
     return [...names];
   });
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  let listening = false;
-  let lastOperation: 'record' | 'run' | undefined;
+  let unsubscribe: (() => void) | undefined;
+  let recordingTaskId: string | undefined;
 
-  /** 更新当前状态；不会用上次运行快照覆盖用户已编辑的草稿。 */
-  async function refresh(): Promise<void> {
-    try {
-      const next = await pc.getPcState();
-      if (lastOperation === 'record' && next.draft) {
-        draft.value = next.draft;
-        if (!draft.value.case.steps.some((step) => step.id === selectedId.value))
-          selectedId.value = draft.value.case.steps[0]?.id ?? '';
-        if (next.mode === 'idle') lastOperation = undefined;
-      }
-      remote.value = next;
-      connected.value = true;
-    } catch (cause) {
-      connected.value = false;
-      error.value = cause instanceof Error ? cause.message : '本机连接失败。';
+  /** 推送只更新对应录制草稿，运行结果和本地编辑始终分开。 */
+  function receiveState(next: PcState): void {
+    if (recordingTaskId && next.draft?.id === recordingTaskId) {
+      draft.value = next.draft;
+      if (!draft.value.case.steps.some((step) => step.id === selectedId.value))
+        selectedId.value = draft.value.case.steps[0]?.id ?? '';
+      if (next.mode === 'idle') recordingTaskId = undefined;
     }
+    remote.value = next;
+    connected.value = true;
+    connectionError.value = '';
   }
-  /** 开始有限频率的状态查询；卸载时必须断开。 */
-  async function connect(): Promise<void> {
-    if (listening) return;
-    listening = true;
-    const poll = async (): Promise<void> => {
-      await refresh();
-      if (listening) timer = setTimeout(poll, 500);
-    };
-    await poll();
+  /** 建立唯一订阅；断线时由服务层重新认证并同步最新状态。 */
+  function connect(): void {
+    if (unsubscribe) return;
+    unsubscribe = pc.subscribePcState(receiveState, (message) => {
+      connected.value = false;
+      connectionError.value = message;
+    });
   }
-  /** 停止网页状态查询，不取消已明确启动的任务。 */
+  /** 停止推送和重试，不取消用户已启动的执行任务。 */
   function disconnect(): void {
-    listening = false;
-    clearTimeout(timer);
+    unsubscribe?.();
+    unsubscribe = undefined;
+    connected.value = false;
   }
   /** 统一加载、校验与错误反馈。 */
   async function act(action: () => Promise<void>): Promise<void> {
@@ -106,7 +100,6 @@ export const usePcStore = defineStore('pc', () => {
     error.value = '';
     try {
       await action();
-      await refresh();
     } catch (cause) {
       error.value = cause instanceof Error ? cause.message : '操作失败，请检查配置。';
     } finally {
@@ -137,9 +130,14 @@ export const usePcStore = defineStore('pc', () => {
         case: { ...draft.value.case, version: draft.value.case.version + 1, steps: [first] },
         variables: values.value,
       });
-      await pc.startRecording(input);
-      lastOperation = 'record';
-      values.value = {};
+      recordingTaskId = input.id;
+      try {
+        await pc.startRecording(input);
+        values.value = {};
+      } catch (cause) {
+        recordingTaskId = undefined;
+        throw cause;
+      }
     });
   }
   /** 完成录制并取得媒体引用。 */
@@ -150,7 +148,6 @@ export const usePcStore = defineStore('pc', () => {
   async function replay(): Promise<void> {
     await act(async () => {
       await pc.startReplay(taskForRun());
-      lastOperation = 'run';
     });
   }
   /** 明确取消当前录制或回放。 */
@@ -232,7 +229,7 @@ export const usePcStore = defineStore('pc', () => {
       values.value = { ...task.variables };
       draft.value = { ...task, variables: {} };
       selectedId.value = task.case.steps[0]!.id;
-      lastOperation = undefined;
+      recordingTaskId = undefined;
     } catch {
       error.value = '用例 JSON 无效或不是当前支持的 PC 用例，原草稿已保留。';
     }
@@ -270,10 +267,10 @@ export const usePcStore = defineStore('pc', () => {
     error,
     loading,
     connected,
+    connectionError,
     busy,
     connect,
     disconnect,
-    refresh,
     record,
     stop,
     replay,

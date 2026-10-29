@@ -5,8 +5,8 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { freePort, runNode, waitForHttp } from './helpers.mjs';
 
 /** 通过公开 HTTP 启动真实本机执行器，不依赖平台数据库。 */
-export async function startWorkbench(t) {
-  const port = await freePort();
+export async function startWorkbench(t, options = {}) {
+  const port = options.port ?? (await freePort());
   const artifactDir = await mkdtemp(join(tmpdir(), 'riqvo-workbench-'));
   t.after(() => rm(artifactDir, { recursive: true, force: true }));
   const processHandle = runNode('apps/runner/dist/pc-main.js', [], {
