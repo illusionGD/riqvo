@@ -6,3 +6,5 @@ export { parseRunResult } from './result';
 export type { RunResult, StepResult, ArtifactReference } from './result';
 export { parseRunEvent } from './event';
 export type { RunEvent } from './event';
+export { API_CODES, API_MESSAGES, apiResponse, codeForStatus, parseApiResponse } from './http';
+export type { ApiCode, ApiResponse } from './http';

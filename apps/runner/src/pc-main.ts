@@ -1,3 +1,4 @@
+import { apiResponse, API_CODES, codeForStatus, parseApiResponse } from '@riqvo/contracts';
 import { randomBytes } from 'node:crypto';
 import { createReadStream } from 'node:fs';
 import { readFile, stat } from 'node:fs/promises';
@@ -49,7 +50,17 @@ function json(response: ServerResponse, status: number, value: unknown): void {
     'content-type': 'application/json; charset=utf-8',
     'cache-control': 'no-store',
   });
-  response.end(JSON.stringify(value));
+  response.end(
+    JSON.stringify(
+      apiResponse(
+        status < 400 ? value : null,
+        status < 400
+          ? API_CODES.SUCCESS
+          : (API_CODES[(value as { error: keyof typeof API_CODES }).error] ??
+              codeForStatus(status)),
+      ),
+    ),
+  );
 }
 
 /** 支持媒体范围请求，下载路径仅来自服务器登记的引用。 */
@@ -138,7 +149,12 @@ async function main(): Promise<void> {
             signal: AbortSignal.timeout(5000),
           });
           if (![200, 503].includes(health.status)) throw new Error('HEALTH_UNAVAILABLE');
-          json(response, health.status, await health.json());
+          const envelope = parseApiResponse(await health.json());
+          response.writeHead(health.status, {
+            'content-type': 'application/json',
+            'cache-control': 'no-store',
+          });
+          response.end(JSON.stringify(envelope));
         } catch {
           json(response, 502, { error: 'PLATFORM_UNAVAILABLE' });
         }

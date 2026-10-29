@@ -1,5 +1,11 @@
 import { z } from 'zod';
-import { parseTask, parseRunResult } from '@riqvo/contracts';
+import {
+  API_CODES,
+  API_MESSAGES,
+  parseApiResponse,
+  parseTask,
+  parseRunResult,
+} from '@riqvo/contracts';
 import type { ArtifactReference, TestTask } from '@riqvo/contracts';
 import type { PcState } from '../types/pc';
 
@@ -57,7 +63,9 @@ let token = '';
 async function connect(signal: AbortSignal = AbortSignal.timeout(5000)): Promise<void> {
   const response = await fetch('/api/pc/bootstrap', { cache: 'no-store', signal });
   if (!response.ok) throw new Error('无法连接本机执行器，请确认执行器已启动。');
-  const value: unknown = await response.json();
+  const envelope = parseApiResponse(await response.json());
+  if (envelope.code !== API_CODES.SUCCESS) throw new Error(API_MESSAGES[envelope.code]);
+  const value = envelope.data;
   token = z.object({ token: z.string().regex(/^[a-f0-9]{64}$/) }).parse(value).token;
 }
 
@@ -70,17 +78,12 @@ async function request(path: string, value?: unknown): Promise<unknown> {
     headers: { 'content-type': 'application/json', 'x-riqvo-token': token },
     body: value === undefined ? undefined : JSON.stringify(value),
   });
-  if (!response.ok) {
-    if (response.status === 403) {
-      token = '';
-      throw new Error('本机连接已过期，请重新连接后操作。');
-    }
-    if (response.status === 409) throw new Error('当前浏览器正在使用中，请先停止录制或回放。');
-    if (response.status === 400)
-      throw new Error('步骤、环境或变量无效，请检查必填项和当前支持的操作。');
-    throw new Error('本机执行器请求失败，请重试。');
+  const envelope = parseApiResponse(await response.json());
+  if (!response.ok || envelope.code !== API_CODES.SUCCESS) {
+    if (envelope.code === API_CODES.FORBIDDEN) token = '';
+    throw new Error(API_MESSAGES[envelope.code]);
   }
-  return response.json() as Promise<unknown>;
+  return envelope.data;
 }
 
 /** 校验推送快照；完成结果必须对应同一份实际运行任务。 */

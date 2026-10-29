@@ -16,7 +16,14 @@ test(
     t.after(() => api.stop());
     const response = await waitForHttp(`http://127.0.0.1:${port}/api/health/live`, api);
     assert.equal(response.status, 200);
-    assert.deepEqual(await response.json(), { status: 'ok', service: 'riqvo-api' });
+    assert.deepEqual(await response.json(), {
+      code: 0,
+      data: { status: 'ok', service: 'riqvo-api' },
+      message: '操作成功',
+    });
+    const missing = await fetch(`http://127.0.0.1:${port}/api/missing`);
+    assert.equal(missing.status, 404);
+    assert.deepEqual(await missing.json(), { code: 40400, data: null, message: '资源不存在' });
   },
 );
 
@@ -88,7 +95,10 @@ test(
     await waitForHttp(`http://127.0.0.1:${port}/api/health/live`, api);
     const response = await fetch(`http://127.0.0.1:${port}/api/health/ready`);
     assert.equal(response.status, 503);
-    assert.deepEqual(await response.json(), {
+    const envelope = await response.json();
+    assert.equal(envelope.code, 50300);
+    assert.equal(envelope.message, '服务暂不可用');
+    assert.deepEqual(envelope.data, {
       status: 'unavailable',
       service: 'riqvo-api',
       checks: { mysql: 'unavailable', redis: 'unavailable', artifacts: 'unavailable' },

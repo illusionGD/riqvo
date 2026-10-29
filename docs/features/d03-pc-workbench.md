@@ -152,3 +152,5 @@ node --test tests/compatibility/pc-browsers.test.mjs
 ```
 
 Linux 无桌面时可自行启动 Xvfb 并设置 `DISPLAY`。未提供品牌浏览器路径会使该套件失败，不能静默跳过。Windows/macOS 物理桌面、安卓、iPhone 和第三方真机未在此功能验收；不由 Linux 结果推断这些平台兼容性。
+
+HTTP JSON 接口统一使用 `{ code, data, message }`，前后端共用错误码及提示，见 [HTTP 响应约定](../architecture/http-api.md)。

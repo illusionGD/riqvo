@@ -130,7 +130,7 @@ test('可视工作台通过网页启动和停止本机录制，并播放会话�
     await video.play();
   });
   await page.waitForFunction(() => document.querySelector('video')?.currentTime > 0);
-  const state = await (await request('state')).json();
+  const state = (await (await request('state')).json()).data;
   assert.equal(state.mode, 'idle');
   assert.equal(state.draft.case.steps[0].action, 'navigate');
   assert.equal(state.issue, undefined);

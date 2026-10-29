@@ -1,3 +1,4 @@
+import { parseApiResponse, codeForStatus } from '@riqvo/contracts';
 import { z } from 'zod';
 import type { HealthSnapshot } from '../types/health';
 
@@ -18,7 +19,9 @@ export async function fetchHealth(): Promise<HealthSnapshot> {
     cache: 'no-store',
   });
   if (response.status !== 200 && response.status !== 503) throw new Error('API unavailable');
-  const body: unknown = await response.json();
+  const envelope = parseApiResponse(await response.json());
+  if (envelope.code !== codeForStatus(response.status)) throw new Error('INVALID_API_RESPONSE');
+  const body = envelope.data;
   const result = schema.parse(body);
   if ((response.status === 200) !== (result.status === 'ready'))
     throw new Error('Invalid API status');

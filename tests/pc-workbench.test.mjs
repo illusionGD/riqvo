@@ -29,7 +29,20 @@ test(
       ).status,
       403,
     );
-    assert.equal((await request('run', { bad: true })).status, 400);
+    const invalid = await request('run', { bad: true });
+    assert.equal(invalid.status, 400);
+    assert.deepEqual(await invalid.json(), {
+      code: 100001,
+      data: null,
+      message: '步骤、环境或变量无效',
+    });
+    const stopped = await request('stop', {});
+    assert.equal(stopped.status, 409);
+    assert.deepEqual(await stopped.json(), {
+      code: 100004,
+      data: null,
+      message: '当前没有进行中的录制',
+    });
     const sitePort = await freePort();
     const site = runNode('apps/test-site/dist/main.js', [
       `--port=${sitePort}`,
@@ -71,7 +84,7 @@ test(
     ];
     assert.equal((await request('run', task)).status, 202);
     for (let attempt = 0; attempt < 50; attempt += 1) {
-      if ((await (await request('state')).json()).progress.length) break;
+      if ((await (await request('state')).json()).data.progress.length) break;
       await delay(100);
     }
     assert.equal((await request('cancel', {})).status, 200);
@@ -110,7 +123,7 @@ test('网页工作台导入、编辑、切换环境和回放，导出不包含�
   await page.getByLabel('变量 title').fill('工作台编辑后的记录');
   await page.getByRole('button', { name: '回放用例', exact: true }).click();
   await page.getByTestId('run-status').getByText('通过', { exact: true }).waitFor();
-  const state = await (await request('state')).json();
+  const state = (await (await request('state')).json()).data;
   assert.equal(state.result.status, 'passed');
   assert.equal(
     state.draft.case.steps.find((step) => step.id === 'email').value.value,

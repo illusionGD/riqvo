@@ -20,7 +20,7 @@ test(
     await waitForHttp(`http://127.0.0.1:${port}/api/health/live`, api);
     const missing = await fetch(`http://127.0.0.1:${port}/api/health/ready`);
     assert.equal(missing.status, 503);
-    assert.deepEqual((await missing.json()).checks, {
+    assert.deepEqual((await missing.json()).data.checks, {
       mysql: 'migration_required',
       redis: 'ready',
       artifacts: 'ready',
@@ -42,7 +42,7 @@ test(
 
     const ready = await fetch(`http://127.0.0.1:${port}/api/health/ready`);
     assert.equal(ready.status, 200);
-    assert.deepEqual(await ready.json(), {
+    assert.deepEqual((await ready.json()).data, {
       status: 'ready',
       service: 'riqvo-api',
       checks: { mysql: 'ready', redis: 'ready', artifacts: 'ready' },

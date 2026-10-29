@@ -16,7 +16,7 @@ export async function startWorkbench(t, options = {}) {
   t.after(() => processHandle.stop());
   const origin = `http://127.0.0.1:${port}`;
   await waitForHttp(`${origin}/api/pc/bootstrap`, processHandle);
-  const bootstrap = await (await fetch(`${origin}/api/pc/bootstrap`)).json();
+  const bootstrap = (await (await fetch(`${origin}/api/pc/bootstrap`)).json()).data;
   const headers = { origin, 'content-type': 'application/json', 'x-riqvo-token': bootstrap.token };
   const request = async (path, value) =>
     fetch(
@@ -29,7 +29,7 @@ export async function startWorkbench(t, options = {}) {
 /** 只从公共状态观察结束，等待上限有限。 */
 export async function waitIdle(request) {
   for (let count = 0; count < 150; count += 1) {
-    const state = await (await request('state')).json();
+    const state = (await (await request('state')).json()).data;
     if (state.mode === 'idle') return state;
     await delay(100);
   }

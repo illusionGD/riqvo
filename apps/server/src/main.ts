@@ -1,3 +1,4 @@
+import { HttpResponseInterceptor, HttpResponseFilter } from './http-response';
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
@@ -9,6 +10,8 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule.register(config), {
     logger: ['log', 'warn', 'error'],
   });
+  app.useGlobalInterceptors(new HttpResponseInterceptor());
+  app.useGlobalFilters(new HttpResponseFilter());
   app.setGlobalPrefix('api');
   app.enableShutdownHooks();
   await app.listen(config.API_PORT, config.API_HOST);

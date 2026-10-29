@@ -134,3 +134,5 @@ docs            产品基线、开发计划、进度及功能说明
 ```
 
 后续执行引擎和 AI 包在对应功能中创建，避免预先引入空实现。详见 [开发计划](docs/plan.md)、[开发进度](docs/progress.md)、[D01 交付说明](docs/features/d01-engineering.md)、[D02 交付说明](docs/features/d02-contracts-and-test-site.md)、[D03 交付说明](docs/features/d03-pc-workbench.md)。
+
+HTTP JSON 接口统一使用 `{ code, data, message }`，前后端共用错误码及提示，见 [HTTP 响应约定](docs/architecture/http-api.md)。

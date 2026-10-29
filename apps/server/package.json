@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "dev": "tsc-watch --onSuccess \"node --env-file=../../.env dist/main.js\"",
+    "dev": "node --env-file=../../.env --watch --conditions=riqvo-development ../../scripts/server-dev.mjs",
     "start": "node --env-file=../../.env dist/main.js",
     "db:migrate": "pnpm build && node --env-file=../../.env dist/database/migrate.js up",
     "db:status": "pnpm build && node --env-file=../../.env dist/database/migrate.js status"
@@ -19,6 +19,7 @@
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2",
     "typeorm": "0.3.31",
-    "zod": "4.6.7"
+    "zod": "4.6.7",
+    "@riqvo/contracts": "workspace:*"
   }
 }

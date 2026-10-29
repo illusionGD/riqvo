@@ -1,3 +1,4 @@
+import { parseApiResponse, codeForStatus } from '@riqvo/contracts';
 import { setTimeout as delay } from 'node:timers/promises';
 import { z } from 'zod';
 import { loadRunnerConfig } from './config';
@@ -22,7 +23,9 @@ async function checkApi(origin: string, signal: AbortSignal): Promise<ApiStatus>
       signal: AbortSignal.any([signal, AbortSignal.timeout(3000)]),
       redirect: 'error',
     });
-    const body: unknown = await response.json();
+    const envelope = parseApiResponse(await response.json());
+    if (envelope.code !== codeForStatus(response.status)) throw new Error('INVALID_API_RESPONSE');
+    const body = envelope.data;
     const result = readinessSchema.safeParse(body);
     if (!result.success) return 'invalid-response';
     const { status, checks } = result.data;

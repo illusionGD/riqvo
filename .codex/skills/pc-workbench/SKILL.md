@@ -24,3 +24,5 @@ description: riqvo D03 本机 PC 录制、步骤编辑、回放和媒体原型�
 验证：Node 22 下运行冻结安装、lint、typecheck、format:check、pnpm test。基础套件使用真实 Chromium，支持 `RIQVO_CHROMIUM_EXECUTABLE`；录像需要 Playwright 可用的 FFmpeg。SSE 与真实执行器重启验证见 tests/pc-events.test.mjs，主题与导航行为见 tests/pc-theme.test.mjs。品牌兼容套件在 `tests/compatibility/pc-browsers.test.mjs`，需 Chrome/Edge 真实路径、图形桌面或 Xvfb，以及 ffprobe / ffmpeg，不能以 Chromium 或布局截图代替品牌/真机验收。
 
 测试边界保持真实浏览器、公开驱动 API、工作台 HTTP/CLI 和用户界面。新增行为按 TDD 小步验证，不读取私有状态或用模拟视频代替真实媒体。数据库无改动时不重复运行数据库集成；修改协议或调度后再按影响扩大范围。
+
+HTTP JSON 响应遵循 [统一约定](../../../docs/architecture/http-api.md)，错误码与默认提示只在 contracts/http.ts 维护。SSE、媒体及测试步骤结果错误码保留自己的协议。
