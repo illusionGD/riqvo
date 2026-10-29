@@ -6,6 +6,8 @@
 
 前端采用 Vue 3 + TypeScript + Pinia + **Naive UI**。根部 `NConfigProvider` 统一中文 locale 和主题，组件按需显式导入，布局样式使用 SCSS。
 
+当前范围：自管 PC、安卓和 iPhone；第三方真机接入暂缓。保留普通固定步骤定时回放和飞书周期更新检查，不做 AI 定时生成、探索、分析或修复。团队模型可选，个人模型可独立用于 AI 功能。
+
 ## 本地开发
 
 准备 Node.js **22**（推荐 **22.23.4**，最低 **22.13.0**；版本文件见 `.node-version`）、pnpm **11.25.0**、Docker Engine / Docker Desktop 和 Compose v2。在仓库根目录执行：
