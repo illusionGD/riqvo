@@ -1,4 +1,4 @@
-export { ContractError, parseTask, parseCapabilities } from './task';
+export { ContractError, parseTask, parseCapabilities, STEP_SCHEMA } from './task';
 export type { TestTask, TestStep, InputValue, DriverCapabilities } from './task';
 export { prepareTask } from './prepare';
 export type { PreparedStep, PreparationResult, UnsupportedReason } from './prepare';

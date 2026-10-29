@@ -14,6 +14,9 @@ importers:
       '@riqvo/contracts':
         specifier: workspace:*
         version: link:packages/contracts
+      '@riqvo/driver-playwright':
+        specifier: workspace:*
+        version: link:packages/driver-playwright
       '@types/node':
         specifier: 22.20.5
         version: 22.20.5
@@ -47,6 +50,15 @@ importers:
 
   apps/runner:
     dependencies:
+      '@riqvo/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@riqvo/driver-playwright':
+        specifier: workspace:*
+        version: link:../../packages/driver-playwright
+      playwright:
+        specifier: 1.64.1
+        version: 1.64.1
       zod:
         specifier: 4.6.7
         version: 4.6.7
@@ -89,6 +101,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@riqvo/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       naive-ui:
         specifier: 2.45.3
         version: 2.45.3(vue@3.5.44(typescript@5.9.3))
@@ -117,6 +132,18 @@ importers:
 
   packages/contracts:
     dependencies:
+      zod:
+        specifier: 4.6.7
+        version: 4.6.7
+
+  packages/driver-playwright:
+    dependencies:
+      '@riqvo/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      playwright:
+        specifier: 1.64.1
+        version: 1.64.1
       zod:
         specifier: 4.6.7
         version: 4.6.7

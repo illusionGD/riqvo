@@ -8,8 +8,27 @@ export default ts.config(
   ...ts.configs.recommended,
   ...vue.configs['flat/essential'],
   {
-    files: ['tests/*.mjs'],
+    files: ['tests/**/*.mjs'],
     languageOptions: { globals: { document: 'readonly', window: 'readonly' } },
+  },
+  {
+    files: [
+      'apps/web/src/**/*.{ts,vue}',
+      'packages/driver-playwright/src/{record,recorder-script}.ts',
+    ],
+    languageOptions: {
+      globals: {
+        window: 'readonly',
+        document: 'readonly',
+        CSS: 'readonly',
+        HTMLElement: 'readonly',
+        HTMLInputElement: 'readonly',
+        HTMLSelectElement: 'readonly',
+        HTMLTextAreaElement: 'readonly',
+        Blob: 'readonly',
+        Event: 'readonly',
+      },
+    },
   },
   {
     files: ['apps/test-site/src/browser/**/*.ts'],
