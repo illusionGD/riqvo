@@ -19,13 +19,13 @@ const schema = z.object({
   RUNNER_POLL_INTERVAL_MS: z.coerce.number().int().min(1000).max(60000).default(5000),
 });
 
-/** Local executor settings; no backend database or team model credentials are required. */
+/** 本地执行器配置，不需要后端数据库或团队模型凭据。 */
 export type RunnerConfig = z.infer<typeof schema>;
 
 /**
- * Validate the outbound API origin and polling interval without echoing supplied values.
- * @param env Executor process environment.
- * @returns Executor-only configuration.
+ * 校验目标 API 源地址和轮询间隔，不回显传入值。
+ * @param env 执行器进程环境变量。
+ * @returns 仅供执行器使用的配置。
  */
 export function loadRunnerConfig(env: NodeJS.ProcessEnv): RunnerConfig {
   const result = schema.safeParse(env);

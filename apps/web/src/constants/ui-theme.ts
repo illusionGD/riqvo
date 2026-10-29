@@ -1,6 +1,6 @@
 import type { GlobalThemeOverrides } from 'naive-ui';
 
-/** Shared Naive UI theme; keep the primary and status colors aligned with global SCSS tokens. */
+/** 共享 Naive UI 主题；主色和状态色与全局 SCSS 变量保持一致。 */
 export const UI_THEME = {
   common: {
     primaryColor: '#166c55',

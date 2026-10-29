@@ -1,0 +1,93 @@
+{
+  "protocolVersion": 1,
+  "id": "demo-run",
+  "attempt": 1,
+  "case": {
+    "id": "create-and-search",
+    "version": 1,
+    "title": "登录、创建并查询演示记录",
+    "steps": [
+      { "id": "open", "action": "navigate", "site": "portal", "path": "login" },
+      {
+        "id": "username",
+        "action": "fill",
+        "locator": { "strategy": "label", "value": "演示账号" },
+        "value": { "source": "variable", "name": "username" }
+      },
+      {
+        "id": "password",
+        "action": "fill",
+        "locator": { "strategy": "label", "value": "演示密码" },
+        "value": { "source": "variable", "name": "password" }
+      },
+      {
+        "id": "login",
+        "action": "click",
+        "locator": { "strategy": "role", "role": "button", "name": "登录工作台" }
+      },
+      {
+        "id": "title",
+        "action": "fill",
+        "locator": { "strategy": "label", "value": "记录标题" },
+        "value": { "source": "variable", "name": "title" }
+      },
+      {
+        "id": "email",
+        "action": "fill",
+        "locator": { "strategy": "label", "value": "联系邮箱" },
+        "value": { "source": "literal", "value": "demo@example.test" }
+      },
+      {
+        "id": "priority",
+        "action": "select",
+        "locator": { "strategy": "label", "value": "优先级" },
+        "value": { "source": "literal", "value": "high" }
+      },
+      {
+        "id": "agree",
+        "action": "check",
+        "locator": { "strategy": "label", "value": "我仅使用演示数据" },
+        "checked": true
+      },
+      {
+        "id": "create",
+        "action": "click",
+        "locator": { "strategy": "role", "role": "button", "name": "创建记录" }
+      },
+      {
+        "id": "created",
+        "action": "assertText",
+        "locator": { "strategy": "testId", "value": "feedback" },
+        "expected": { "source": "literal", "value": "记录已创建" },
+        "match": "equals"
+      },
+      {
+        "id": "keyword",
+        "action": "fill",
+        "locator": { "strategy": "label", "value": "查询关键词" },
+        "value": { "source": "variable", "name": "title" }
+      },
+      {
+        "id": "search",
+        "action": "click",
+        "locator": { "strategy": "role", "role": "button", "name": "查询记录" }
+      },
+      {
+        "id": "found",
+        "action": "assertText",
+        "locator": { "strategy": "testId", "value": "records" },
+        "expected": { "source": "variable", "name": "title" },
+        "match": "contains"
+      }
+    ]
+  },
+  "environment": {
+    "id": "test",
+    "revision": 1,
+    "name": "测试环境",
+    "sites": { "portal": "http://127.0.0.1:4174/" }
+  },
+  "target": { "platform": "pc", "browser": "chromium", "mode": "background" },
+  "variables": { "username": "tester", "password": "riqvo-demo", "title": "双环境回归样例" },
+  "artifacts": []
+}

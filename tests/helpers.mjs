@@ -6,7 +6,7 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-/** Provide a path below a regular file; directory creation must fail on every OS. */
+/** 在普通文件下构造路径，确保所有系统都无法在该位置创建目录。 */
 export async function blockedArtifactPath(t) {
   const directory = await mkdtemp(join(tmpdir(), 'riqvo-blocked-'));
   t.after(() => rm(directory, { recursive: true, force: true }));
@@ -15,7 +15,7 @@ export async function blockedArtifactPath(t) {
   return join(file, 'artifacts');
 }
 
-/** Reserve an unused loopback port for a test process. */
+/** 为测试进程查找未使用的回环端口。 */
 export async function freePort() {
   const server = createServer();
   server.listen(0, '127.0.0.1');
@@ -27,7 +27,7 @@ export async function freePort() {
   return port;
 }
 
-/** Start a real compiled entrypoint; expose only process output and lifetime. */
+/** 启动真实编译入口，仅提供进程输出和生命周期控制。 */
 export function runNode(entrypoint, args = [], env = {}, options = {}) {
   const child = spawn(process.execPath, [entrypoint, ...args], {
     env: { ...process.env, ...env },
@@ -53,7 +53,7 @@ export function runNode(entrypoint, args = [], env = {}, options = {}) {
   };
 }
 
-/** Wait for an actual HTTP response, failing early when the process exits. */
+/** 等待真实 HTTP 响应；进程退出时立即报告失败。 */
 export async function waitForHttp(url, processHandle) {
   for (let attempt = 0; attempt < 100; attempt += 1) {
     if (processHandle.child.exitCode !== null) throw new Error(processHandle.output());

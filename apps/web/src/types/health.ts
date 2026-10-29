@@ -1,12 +1,12 @@
-/** Dependency states returned by the public readiness endpoint. */
+/** 公共就绪接口返回的依赖状态。 */
 export type DependencyStatus = 'ready' | 'unavailable' | 'migration_required';
 
-/** Public health snapshot; deliberately contains no private configuration. */
+/** 公共健康快照，不包含私有配置。 */
 export interface HealthSnapshot {
-  /** Aggregate readiness of the configured backend dependencies. */
+  /** 已配置后端依赖的整体就绪状态。 */
   status: 'ready' | 'unavailable';
-  /** Identifier checked before trusting a response from the configured API. */
+  /** 用于校验已配置 API 响应来源的服务标识。 */
   service: 'riqvo-api';
-  /** Independent backend probes; the API's own liveness is checked separately. */
+  /** 独立的后端依赖探针；API 进程存活另行检查。 */
   checks: { mysql: DependencyStatus; redis: DependencyStatus; artifacts: DependencyStatus };
 }

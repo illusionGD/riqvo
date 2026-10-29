@@ -19,16 +19,16 @@ const schema = z.object({
   ARTIFACT_DIR: z.string().min(1).default('.local/artifacts'),
 });
 
-/** Server-only configuration. Never serialize this object into logs or HTTP responses. */
+/** 仅供服务器使用的配置，不得序列化到日志或 HTTP 响应。 */
 export type ApiConfig = z.infer<typeof schema>;
 
-/** Dependency-injection token for the validated server configuration. */
+/** 已校验服务器配置的依赖注入标识。 */
 export const API_CONFIG = Symbol('API_CONFIG');
 
 /**
- * Validate runtime settings without echoing any supplied values, including secrets.
- * @param env Environment variables; only declared keys are consumed.
- * @returns Validated configuration with an absolute artifact directory.
+ * 校验运行配置，不回显任何输入值或密钥。
+ * @param env 环境变量，仅读取已声明的键。
+ * @returns 已校验配置，产物目录为绝对路径。
  */
 export function loadApiConfig(env: NodeJS.ProcessEnv): ApiConfig {
   const result = schema.safeParse(env);

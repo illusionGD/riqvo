@@ -14,14 +14,16 @@
     "db:migrate": "pnpm --filter @riqvo/server db:migrate",
     "db:status": "pnpm --filter @riqvo/server db:status",
     "dev": "concurrently --kill-others --names server,web,runner \"pnpm --filter @riqvo/server dev\" \"pnpm --filter @riqvo/web dev\" \"pnpm --filter @riqvo/runner dev\"",
+    "fixture:start": "pnpm --filter @riqvo/test-site build && concurrently --kill-others --names test,preprod \"node apps/test-site/dist/main.js --port=4174 --environment=test\" \"node apps/test-site/dist/main.js --port=4175 --environment=preprod\"",
     "build": "pnpm -r build",
-    "lint": "eslint apps scripts tests eslint.config.mjs --max-warnings 0",
+    "lint": "eslint apps packages scripts tests eslint.config.mjs --max-warnings 0",
     "typecheck": "pnpm -r typecheck",
     "format:check": "prettier --check .",
     "test": "pnpm build && node --test --test-concurrency=1 tests/*.test.mjs",
     "test:integration": "node scripts/test-integration.mjs"
   },
   "devDependencies": {
+    "@riqvo/contracts": "workspace:*",
     "@eslint/js": "10.0.1",
     "@types/node": "22.20.5",
     "concurrently": "10.0.6",

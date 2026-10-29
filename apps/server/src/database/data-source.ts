@@ -3,9 +3,9 @@ import type { ApiConfig } from '../config/config';
 import { InitializePlatform1793203200000 } from './migrations/1793203200000-initialize-platform';
 
 /**
- * Construct the migration connection; schema changes are always explicit.
- * @param config Validated server configuration.
- * @returns An uninitialized data source for the maintenance command.
+ * 创建迁移连接；数据库结构变更始终显式执行。
+ * @param config 已校验的服务器配置。
+ * @returns 供维护命令使用的未初始化数据源。
  */
 export function createDataSource(config: ApiConfig): DataSource {
   return new DataSource({

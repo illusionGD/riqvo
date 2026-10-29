@@ -1,0 +1,10 @@
+{
+  "protocolVersion": 1,
+  "driver": "playwright",
+  "platform": "pc",
+  "browser": "chromium",
+  "actions": ["navigate", "fill", "select", "check", "click", "assertText"],
+  "locators": ["testId", "role", "label"],
+  "modes": ["background"],
+  "artifacts": []
+}

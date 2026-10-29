@@ -2,7 +2,7 @@
 
 面向测试团队的 Web 自动化测试平台。产品目标覆盖 PC 浏览器、安卓 Chrome 真机和 iPhone Safari 真机，支持可视化录制、编辑、回放、视频报告和 AI 辅助。
 
-当前已完成 **D01 工程基础**：Web 管理台入口、NestJS API、执行器进程入口、真实依赖检查、数据库迁移及开发验证。录制、测试任务、登录、真机控制和桌面安装包按后续功能交付。每个功能完成并验证后，提交并 push 到 `dev`，随后暂停，等待用户 review 再继续。协作约定见 [AGENTS.md](AGENTS.md)。
+当前已完成 **D01 工程基础**与 **D02 最小协议/可控测试站**：Web 管理台入口、NestJS API、执行器进程入口、真实依赖检查、数据库迁移，以及统一步骤/结果协议和双环境演示站。正式录制、任务派发、平台登录、真机控制和桌面安装包按后续功能交付。每个功能完成并验证后，提交并 push 到 `dev`，随后暂停，等待用户 review 再继续。协作约定见 [AGENTS.md](AGENTS.md)。
 
 前端采用 Vue 3 + TypeScript + Pinia + **Naive UI**。根部 `NConfigProvider` 统一中文 locale 和主题，组件按需显式导入，布局样式使用 SCSS。
 
@@ -70,20 +70,31 @@ RIQVO_CHROMIUM_EXECUTABLE=/usr/bin/chromium pnpm test
 RIQVO_CHROMIUM_EXECUTABLE=/usr/bin/chromium pnpm test:integration
 ```
 
-- `pnpm test`：构建后验证 HTTP、配置错误、执行器不可达、前端故障提示与重试，不需要 Docker 服务。
+- `pnpm test`：构建后验证公共协议、双环境演示站、HTTP、配置错误、执行器不可达、前端故障提示与重试，不需要 Docker 服务。测试站使用随机端口并在测试后清理。
 - `pnpm test:integration`：构建后启动**独立且临时**的 MySQL/Redis、生成测试凭据和随机端口，验证迁移、就绪、执行器重连及实际 Web 调用；正常结束或测试失败都会清理该测试实例，不清理开发数据库。请勿直接运行 integration 文件。若进程被强制杀死，可按输出中的 `riqvo-test-*` 项目名清理该次测试实例。
 
 本次实测平台为 Linux x64；Windows/macOS、实际 Chrome/Edge 驱动和手机能力在对应功能中验证，不由这组工程测试推断兼容性。
+
+## D02 演示站与协议
+
+在 Node 22 下执行 `pnpm fixture:start`，可独立启动两个测试目标站点，默认端口 **4174 / 4175**，分别代表测试和预发布环境。Ctrl+C 停止两者。演示账号为 `tester`，公开演示密码为 `riqvo-demo`；这不是测试平台账号，不能填写真实账号或个人信息。
+
+站点支持登录、表单、查询、数据重置、移动菜单、文件选择、同源 iframe 和新标签页。实例仅监听本机回环地址；会话及记录隔离，重启清空，不访问平台 MySQL。文件仅做本地信息展示，未实现服务端上传。
+
+统一协议包为 `@riqvo/contracts`；[JSON 样例](examples/d02/task.json) 将操作内容和[环境地址](examples/d02/environments.json)分离，真实浏览器验收复用同一份步骤。支持严格解析、显式变量、能力预检、结果及事件校验；录制和正式执行器接入在 D03 后继续。公共接口、步骤语义和限制见 [D02 说明](docs/features/d02-contracts-and-test-site.md)。
 
 ## 目录与进度
 
 ```text
 apps/web        Vue 3 + Vite + Pinia 管理台
-apps/server        NestJS API、配置、依赖检查、TypeORM 迁移
+apps/server     NestJS API、配置、依赖检查、TypeORM 迁移
 apps/runner     独立执行核心入口，后续由桌面 App 或服务器进程承载
+apps/test-site  独立可控演示站，提供两套环境和代表性 Web 交互
+packages/contracts  共享任务、步骤、能力、结果和事件协议
+examples/d02    JSON 任务、环境及样例能力声明
 scripts         配置初始化、隔离集成测试编排
 tests           HTTP / CLI / 真实浏览器公共边界验证
 docs            产品基线、开发计划、进度及功能说明
 ```
 
-共享步骤协议、驱动和 AI 包在对应功能中创建，避免预先引入空实现。详见 [开发计划](docs/plan.md)、[开发进度](docs/progress.md)、[D01 交付说明](docs/features/d01-engineering.md)。
+驱动、执行引擎和 AI 包在对应功能中创建，避免预先引入空实现。详见 [开发计划](docs/plan.md)、[开发进度](docs/progress.md)、[D01 交付说明](docs/features/d01-engineering.md)、[D02 交付说明](docs/features/d02-contracts-and-test-site.md)。

@@ -1,16 +1,16 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
-/** Infrastructure metadata only; business tables belong to their respective features. */
+/** 仅包含工程元数据；业务表在对应功能中创建。 */
 export class InitializePlatform1793203200000 implements MigrationInterface {
   name = 'InitializePlatform1793203200000';
 
   /**
-   * Establish the baseline schema required by the readiness endpoint.
-   * @param queryRunner Connection owned by the migration executor.
+   * 创建就绪接口需要的基础数据库结构。
+   * @param queryRunner 由迁移执行器管理的连接。
    */
   async up(queryRunner: QueryRunner): Promise<void> {
-    // MySQL DDL implicitly commits. Idempotent statements allow this baseline to resume
-    // if the process exits between creating the table and recording the migration.
+    // MySQL DDL 会隐式提交；幂等语句允许在建表与记录迁移之间中断后
+    // 重新执行这份基础迁移。
     await queryRunner.query(`CREATE TABLE IF NOT EXISTS riqvo_metadata (
       id TINYINT UNSIGNED NOT NULL PRIMARY KEY,
       schema_revision INT UNSIGNED NOT NULL,
@@ -22,8 +22,8 @@ export class InitializePlatform1793203200000 implements MigrationInterface {
   }
 
   /**
-   * Framework rollback hook; intentionally unavailable from the public maintenance CLI.
-   * @param queryRunner Connection owned by the migration executor.
+   * 框架回滚钩子；公共维护命令不开放此操作。
+   * @param queryRunner 由迁移执行器管理的连接。
    */
   async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query('DROP TABLE riqvo_metadata');

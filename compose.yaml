@@ -11,7 +11,7 @@ services:
     ports:
       - '127.0.0.1:${MYSQL_PORT:-13306}:3306'
     volumes:
-      # Use a fresh volume; MySQL 8.4 data files cannot be downgraded in place.
+      # 使用新数据卷；MySQL 8.4 数据文件不能原地降级。
       - mysql-8-0-26-data:/var/lib/mysql
     healthcheck:
       test:

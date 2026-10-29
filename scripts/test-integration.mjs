@@ -13,7 +13,7 @@ const env = {
 };
 const composeArgs = ['compose', '-p', project, '-f', 'compose.test.yaml'];
 
-/** Run a public command, preserving failures and keeping credentials in the environment. */
+/** 运行公共命令，保留失败状态，并仅通过环境变量传递凭据。 */
 async function command(executable, args, environment = env, capture = false) {
   return await new Promise((resolve, reject) => {
     const child = spawn(executable, args, {

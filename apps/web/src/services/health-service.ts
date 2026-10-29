@@ -9,8 +9,8 @@ const schema = z.object({
 });
 
 /**
- * Read actual backend readiness through the same-origin API proxy.
- * @returns A validated snapshot; 503 is a valid dependency-failure response.
+ * 通过同源 API 代理读取后端的实际就绪状态。
+ * @returns 已校验快照；503 表示有效的依赖失败响应。
  */
 export async function fetchHealth(): Promise<HealthSnapshot> {
   const response = await fetch('/api/health/ready', {

@@ -1,0 +1,14 @@
+[
+  {
+    "id": "test",
+    "revision": 1,
+    "name": "测试环境",
+    "sites": { "portal": "http://127.0.0.1:4174/" }
+  },
+  {
+    "id": "preprod",
+    "revision": 1,
+    "name": "预发布环境",
+    "sites": { "portal": "http://127.0.0.1:4175/" }
+  }
+]

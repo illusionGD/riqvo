@@ -1,0 +1,13 @@
+{
+  "name": "@riqvo/test-site",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.client.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.client.json --noEmit",
+    "start": "node dist/main.js"
+  },
+  "dependencies": {
+    "zod": "4.6.7"
+  }
+}

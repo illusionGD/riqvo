@@ -8,6 +8,24 @@ export default ts.config(
   ...ts.configs.recommended,
   ...vue.configs['flat/essential'],
   {
+    files: ['tests/*.mjs'],
+    languageOptions: { globals: { document: 'readonly', window: 'readonly' } },
+  },
+  {
+    files: ['apps/test-site/src/browser/**/*.ts'],
+    languageOptions: {
+      globals: {
+        document: 'readonly',
+        HTMLElement: 'readonly',
+        HTMLInputElement: 'readonly',
+        HTMLSelectElement: 'readonly',
+        HTMLButtonElement: 'readonly',
+        HTMLFormElement: 'readonly',
+        HTMLUListElement: 'readonly',
+      },
+    },
+  },
+  {
     files: ['**/*.vue'],
     languageOptions: { parserOptions: { parser: ts.parser, extraFileExtensions: ['.vue'] } },
   },
@@ -24,6 +42,7 @@ export default ts.config(
         AbortSignal: 'readonly',
         AbortController: 'readonly',
         Buffer: 'readonly',
+        structuredClone: 'readonly',
       },
     },
   },

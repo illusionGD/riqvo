@@ -2,6 +2,8 @@
 
 开发前阅读 `docs/plan.md`、`docs/progress.md`、适用的 `.codex/rules` 和 skills，沿用已确认的功能范围与测试边界。
 
+项目源码、测试和配置中的说明性注释统一使用中文，保留必要的技术名称及 JSDoc 标签；不修改第三方依赖或工具自带文档。
+
 前端采用 Vue 3 + TypeScript + Pinia，组件库使用用户指定的 **Naive UI**。优先复用其组件，按需显式导入，通过根部 NConfigProvider 统一中文 locale 与主题；页面布局和业务逻辑仍遵循现有前端 rules。
 
 Node.js 使用用户指定的 **22** 主版本；推荐补丁版本见 `.node-version`，最低版本遵循 `package.json` engines。类型声明使用 `@types/node` 22，验证必须实际运行在 Node 22 下，不能用其他主版本的结果替代。
@@ -9,6 +11,8 @@ Node.js 使用用户指定的 **22** 主版本；推荐补丁版本见 `.node-ve
 NestJS 后端目录使用 `apps/server`，工作区包名为 `@riqvo/server`；命令、测试和文档引用保持一致。
 
 数据库使用用户指定的 **MySQL 8.0.26**；开发与隔离集成测试保持相同版本及镜像 digest，SQL 和迁移须兼容此版本。切换数据库版本时不得直接复用更高版本的数据目录，也不得删除已有开发数据卷。
+
+AI 编排优先跟随执行节点；个人 Key 仅在个人执行端使用，团队 Key 后端加密保存。受控团队节点的独立 AI 进程可授权直连模型，个人节点使用团队模型时默认经后端网关，不下发团队主 Key。完整边界见 [AI 架构决定](docs/architecture/ai-execution.md)。
 
 ## 功能交付流程
 

@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "ES2022",
+    "moduleResolution": "Bundler",
+    "types": [],
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "rootDir": "src/browser",
+    "outDir": "dist/browser"
+  },
+  "include": ["src/browser/**/*.ts"]
+}

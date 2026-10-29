@@ -8,13 +8,13 @@ import { API_CONFIG, type ApiConfig } from '../config/config';
 
 type CheckStatus = 'ready' | 'unavailable' | 'migration_required';
 
-/** Public readiness response. No dependency addresses, paths or credentials are exposed. */
+/** 公共就绪响应，不暴露依赖地址、路径或凭据。 */
 export interface Readiness {
-  /** Overall availability of the configured dependencies. */
+  /** 已配置依赖的整体可用状态。 */
   status: 'ready' | 'unavailable';
-  /** Stable service identifier for callers, including the runner. */
+  /** 提供给执行器等调用方的稳定服务标识。 */
   service: 'riqvo-api';
-  /** Individual probe results; a missing schema is distinct from a disconnected database. */
+  /** 独立探针结果；缺少数据库结构与连接失败分别表示。 */
   checks: { mysql: CheckStatus; redis: CheckStatus; artifacts: CheckStatus };
 }
 
@@ -23,8 +23,8 @@ export class HealthService {
   constructor(@Inject(API_CONFIG) private readonly config: ApiConfig) {}
 
   /**
-   * Check actual dependencies without performing migrations or starting tasks.
-   * @returns Independent probe outcomes and an aggregate readiness status.
+   * 检查真实依赖，不执行迁移或启动任务。
+   * @returns 各项探针结果与整体就绪状态。
    */
   async readiness(): Promise<Readiness> {
     const [mysql, redis, artifacts] = await Promise.all([
@@ -88,7 +88,7 @@ export class HealthService {
       retryStrategy: () => null,
       enableOfflineQueue: false,
     });
-    // Errors are represented by the returned status, never by raw connection logs.
+    // 通过返回状态表示错误，不输出原始连接日志。
     redis.on('error', () => {});
     try {
       await redis.connect();

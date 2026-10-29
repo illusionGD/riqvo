@@ -6,9 +6,9 @@ import { API_CONFIG, type ApiConfig } from './config/config';
 @Module({})
 export class AppModule {
   /**
-   * Assemble the API with already validated configuration.
-   * @param config Server-only settings.
-   * @returns Root Nest module; migrations remain an explicit CLI operation.
+   * 使用已校验配置组装 API。
+   * @param config 仅供服务器使用的设置。
+   * @returns Nest 根模块；数据库迁移仍由显式命令执行。
    */
   static register(config: ApiConfig): DynamicModule {
     return {

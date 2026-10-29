@@ -11,6 +11,9 @@ importers:
       '@eslint/js':
         specifier: 10.0.1
         version: 10.0.1(eslint@10.13.0(supports-color@10.2.2))
+      '@riqvo/contracts':
+        specifier: workspace:*
+        version: link:packages/contracts
       '@types/node':
         specifier: 22.20.5
         version: 22.20.5
@@ -78,6 +81,12 @@ importers:
         specifier: 4.6.7
         version: 4.6.7
 
+  apps/test-site:
+    dependencies:
+      zod:
+        specifier: 4.6.7
+        version: 4.6.7
+
   apps/web:
     dependencies:
       naive-ui:
@@ -105,6 +114,12 @@ importers:
       vue-tsc:
         specifier: 3.3.13
         version: 3.3.13(typescript@5.9.3)
+
+  packages/contracts:
+    dependencies:
+      zod:
+        specifier: 4.6.7
+        version: 4.6.7
 
 packages:
 

@@ -97,15 +97,15 @@ const dependencies: { key: DependencyKey; label: string; description: string }[]
 
 onMounted(handleRefresh);
 
-/** Refresh only through the store action to keep loading and error states consistent. */
+/** 仅通过 store action 刷新，确保加载和错误状态一致。 */
 async function handleRefresh(): Promise<void> {
   await store.refresh();
 }
 
 /**
- * Translate public readiness states; never show an unchecked dependency as available.
- * @param key Dependency shown by the current row.
- * @returns User-facing readiness label.
+ * 转换公共就绪状态，不能将未检查的依赖显示为可用。
+ * @param key 当前行展示的依赖。
+ * @returns 展示给用户的就绪状态文字。
  */
 function statusText(key: DependencyKey): string {
   const status = store.snapshot?.checks[key];
@@ -114,9 +114,9 @@ function statusText(key: DependencyKey): string {
 }
 
 /**
- * Distinguish a failed dependency from an unchecked or uninitialized one.
- * @param key Dependency shown by the current row.
- * @returns The corresponding Naive UI status treatment.
+ * 区分依赖失败、未检查和未初始化状态。
+ * @param key 当前行展示的依赖。
+ * @returns 对应的 Naive UI 状态样式。
  */
 function statusType(key: DependencyKey): TagProps['type'] {
   const status = store.snapshot?.checks[key];

@@ -11,10 +11,10 @@ const readinessSchema = z.object({
 type ApiStatus = 'ready' | 'unavailable' | 'unreachable' | 'invalid-response';
 
 /**
- * Inspect the API's actual response, without claiming this runner has task capabilities.
- * @param origin Validated HTTP(S) API origin.
- * @param signal Executor shutdown signal.
- * @returns Connectivity/readiness state; no secret values are included.
+ * 检查 API 的真实响应；此执行器目前仅检查连通性。
+ * @param origin 已校验的 HTTP(S) API 源地址。
+ * @param signal 执行器停止信号。
+ * @returns 连通性或就绪状态，不包含敏感值。
  */
 async function checkApi(origin: string, signal: AbortSignal): Promise<ApiStatus> {
   try {
@@ -39,7 +39,7 @@ async function checkApi(origin: string, signal: AbortSignal): Promise<ApiStatus>
   }
 }
 
-/** Start an outbound connectivity monitor; task registration and execution come later. */
+/** 启动主动连通监测；任务注册与执行在后续功能实现。 */
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   if (args.length > 1 || (args.length === 1 && args[0] !== '--check')) {

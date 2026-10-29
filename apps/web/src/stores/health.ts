@@ -10,7 +10,7 @@ export const useHealthStore = defineStore('health', () => {
   const checkedAt = ref<string | null>(null);
   const ready = computed(() => snapshot.value?.status === 'ready');
 
-  /** Refresh the snapshot; clear stale success when the API becomes unreachable. */
+  /** 刷新快照；API 不可达时清除过期的成功状态。 */
   async function refresh(): Promise<void> {
     if (loading.value) return;
     loading.value = true;

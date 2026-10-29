@@ -22,6 +22,7 @@ description: riqvo 的 D01 工程结构、启动命令、真实依赖检查和�
 - apps/web：Vue SFC、Pinia Setup Store、Naive UI，遵守 `.codex/rules`；页面 → store/service，外部响应先校验再使用。库组件按需显式导入，根部 NConfigProvider 统一中文 locale 和主题，主题配置在 `apps/web/src/constants/ui-theme.ts`。
 - apps/server：NestJS 模块化应用。配置只返回字段名错误，不回显值；数据库迁移与应用启动分开，禁用 synchronize/自动迁移。
 - apps/runner：独立执行核心入口，主动访问后端；配置在 `.env.runner`，不复制服务器数据库或团队模型密钥。D01 仅连通检查，不宣称任务执行。
+- packages/contracts 与 apps/test-site：D02 的共享协议和独立演示站，维护时另读 [test-contracts](../test-contracts/SKILL.md)。演示站通过 `pnpm fixture:start` 启动，不在平台 `pnpm dev` 中自动启动；新注释统一使用中文。
 - 新增业务 schema 用新 migration，保留已有迁移；MySQL DDL 不能视为可完整回滚事务。更新 schema 时同步考虑就绪检查的 revision 兼容性。
 - 产物与代码分开保存在配置目录，不能直接暴露整个产物目录作为公开静态资源。
 

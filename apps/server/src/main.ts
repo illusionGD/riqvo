@@ -3,7 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { loadApiConfig } from './config/config';
 
-/** Start the API without running schema migrations or any test jobs. */
+/** 启动 API，不执行数据库迁移或测试任务。 */
 async function bootstrap(): Promise<void> {
   const config = loadApiConfig(process.env);
   const app = await NestFactory.create(AppModule.register(config), {

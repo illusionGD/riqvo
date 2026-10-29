@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { loadApiConfig } from '../config/config';
 import { createDataSource } from './data-source';
 
-/** Run forward migrations under a database-level lock, or report pending work. */
+/** 在数据库级锁保护下执行正向迁移，或报告待执行项。 */
 async function main(): Promise<void> {
   const command = process.argv[2];
   if (command !== 'up' && command !== 'status') {
@@ -17,7 +17,7 @@ async function main(): Promise<void> {
   let locked = false;
   try {
     const result: unknown = await runner.query('SELECT GET_LOCK(?, 5) AS acquired', [lockName]);
-    // mysql2 may return the integer as a string when bigNumberStrings is enabled.
+    // 启用 bigNumberStrings 时，mysql2 可能以字符串返回整数。
     if (!Array.isArray(result) || ![1, '1'].includes(result[0]?.acquired)) {
       throw new Error('Migration lock unavailable; another migration may be running.');
     }
