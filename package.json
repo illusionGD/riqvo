@@ -13,7 +13,7 @@
     "infra:stop": "docker compose stop",
     "db:migrate": "pnpm --filter @riqvo/server db:migrate",
     "db:status": "pnpm --filter @riqvo/server db:status",
-    "dev": "concurrently --kill-others --names server,web,runner \"pnpm --filter @riqvo/server dev\" \"pnpm --filter @riqvo/web dev\" \"pnpm --filter @riqvo/runner dev\"",
+    "dev": "concurrently --kill-others --names server,web,runner \"pnpm dev:server\" \"pnpm dev:web\" \"pnpm dev:runner\"",
     "fixture:start": "pnpm --filter @riqvo/test-site build && concurrently --kill-others --names test,preprod \"node apps/test-site/dist/main.js --port=4174 --environment=test\" \"node apps/test-site/dist/main.js --port=4175 --environment=preprod\"",
     "build": "pnpm -r build",
     "lint": "eslint apps packages scripts tests eslint.config.mjs --max-warnings 0",
@@ -22,7 +22,9 @@
     "test": "pnpm build && node --test --test-concurrency=1 tests/*.test.mjs",
     "test:integration": "node scripts/test-integration.mjs",
     "pc:start": "pnpm --filter @riqvo/runner... build && pnpm --filter @riqvo/web build && node apps/runner/dist/pc-main.js",
-    "pc:dev": "concurrently --kill-others --names pc,web \"node --watch --conditions=riqvo-development scripts/pc-runner-dev.mjs\" \"pnpm --filter @riqvo/web dev --mode pc\""
+    "dev:server": "pnpm --filter @riqvo/server dev",
+    "dev:web": "pnpm --filter @riqvo/web dev",
+    "dev:runner": "node --watch --conditions=riqvo-development scripts/pc-runner-dev.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

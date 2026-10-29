@@ -11,7 +11,7 @@ description: riqvo 的 D01 工程结构、启动命令、真实依赖检查和�
 
 在仓库根目录使用用户指定的 Node 22（推荐 22.23.4，最低 22.13.0）、pnpm 11.25.0，执行 `pnpm install --frozen-lockfile`。使用 `@types/node` 22 并在真实 Node 22 下验证。`pnpm env:init` 只创建缺失的 `.env` / `.env.runner`，保留已有设置。使用当前 checkout，除非用户明确要求，不新建 worktree。
 
-`pnpm infra:up` → `pnpm db:migrate` → `pnpm dev`。只重启本任务启动的进程。Docker 数据默认保留，不能为解决连接错误直接删除开发 volumes。先检查端口、运行状态与配置是否匹配。
+`pnpm infra:up` → `pnpm db:migrate` → `pnpm dev`。统一开发命令启动 Web（`0.0.0.0:5177`）、NestJS 和 PC 浏览器执行器（回环 4319）；单服务使用 `dev:web` / `dev:server` / `dev:runner`。已有 `.env` 手动更新 Web 地址与端口，初始化脚本保留旧配置。只重启本任务启动的进程。Docker 数据默认保留，不能为解决连接错误直接删除开发 volumes。先检查端口、运行状态与配置是否匹配。
 
 数据库固定为用户指定的 MySQL 8.0.26，开发/集成测试镜像及 digest 保持一致。官方镜像仅有 linux/amd64，ARM 主机需提供模拟能力。开发使用 `mysql-8-0-26-data` 新卷，旧 `mysql-data` 卷保留且不自动导入；禁止让 8.0.26 直接打开 8.4 数据目录。SQL 与迁移须在实际 8.0.26 上验证。
 

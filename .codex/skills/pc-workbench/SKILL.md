@@ -7,7 +7,7 @@ description: riqvo D03 本机 PC 录制、步骤编辑、回放和媒体原型�
 
 先读 [AGENTS.md](../../../AGENTS.md)、[进度](../../../docs/progress.md)、[D03 说明](../../../docs/features/d03-pc-workbench.md)，以及 [test-contracts](../test-contracts/SKILL.md)。遵循 Node 22、中文注释、Naive UI 与每功能 push dev 后暂停 review 的约定。
 
-- 由执行器在选定测试电脑上启动受控浏览器；当前回环工作台是 M0 原型，不是正式远程设备注册或调度服务。保持 `pnpm dev` 原有服务入口，D03 开发使用 `pnpm pc:dev`（Vite 热更新 + Node watch，默认 Web 5173 / 执行器 4319），构建体验使用 `pnpm pc:start`（4318）。开发通过 `riqvo-development` 导出条件直接读取共享包源码；使用 TypeScript 转换器，避免注入浏览器的录制函数带有不可用的辅助函数。执行器重启中止任务并清空内存结果。
+- 由执行器在选定测试电脑上启动受控浏览器；当前回环工作台是 M0 原型，不是正式远程设备注册或调度服务。统一使用 `pnpm dev` 启动 Web、NestJS 和 PC 执行器（Vite 热更新 + Node watch，默认 Web 0.0.0.0:5177 / 执行器 4319），单服务调试使用 `dev:web`、`dev:server`、`dev:runner`，构建体验使用 `pnpm pc:start`（4318）。开发通过 `riqvo-development` 导出条件直接读取共享包源码；使用 TypeScript 转换器，避免注入浏览器的录制函数带有不可用的辅助函数。执行器重启中止任务并清空内存结果。
 - 只通过 Playwright 公开 API 录制及执行，不引入内部 recorder SDK，不执行导入文件中的任意代码。
 - 协议从 `@riqvo/contracts` 公共入口导入；UI 的单步校验使用公开 `STEP_SCHEMA`，整任务仍由 parseTask / prepareTask 校验。
 - 录制事件先校验后写入草稿，拒绝时保留最后有效版本并提示。不能将暂未支持的 iframe、弹窗、上传等交互默默丢弃。
@@ -18,7 +18,7 @@ description: riqvo D03 本机 PC 录制、步骤编辑、回放和媒体原型�
 - 客户端断线先重新 bootstrap 再重建事件流，以处理执行器重启后的令牌变化；只保留一个退避重连循环。收到合法状态才恢复连接，不用旧录制/运行快照覆盖手动编辑的草稿。
 - Web 根入口统一进入平台工作台，系统健康检查放在侧栏「系统状态」，不恢复独立诊断首页。构建模式只转发固定健康检查路径到 `RIQVO_PC_PLATFORM_URL`，开发模式通过 Vite `/api` 代理访问平台。
 - 平台导航只在已实现的工作区之间切换，保持当前草稿和状态连接。主题统一由 ui store、根部 NConfigProvider 与 SCSS tokens 控制；支持 light/dark/system，localStorage 只保存主题偏好，不保存运行变量。跟随系统监听和 SSE 均在卸载时清理。
-- HTTP 只监听回环，控制请求校验来源和令牌；不要开放任意文件路径、可执行文件参数或无保护的远程控制。
+- 执行器 HTTP 只监听回环，Web 开发服务器按用户要求监听 `0.0.0.0:5177`；控制请求校验来源和令牌；不要开放任意文件路径、可执行文件参数或无保护的远程控制。
 - D03 媒体只在本机存储，没有自动清理、持久报告索引或正式权限控制。后续接入 D09/D16/D18 时显式迁移这些边界。
 
 验证：Node 22 下运行冻结安装、lint、typecheck、format:check、pnpm test。基础套件使用真实 Chromium，支持 `RIQVO_CHROMIUM_EXECUTABLE`；录像需要 Playwright 可用的 FFmpeg。SSE 与真实执行器重启验证见 tests/pc-events.test.mjs，主题与导航行为见 tests/pc-theme.test.mjs。品牌兼容套件在 `tests/compatibility/pc-browsers.test.mjs`，需 Chrome/Edge 真实路径、图形桌面或 Xvfb，以及 ffprobe / ffmpeg，不能以 Chromium 或布局截图代替品牌/真机验收。

@@ -38,13 +38,13 @@ pnpm pc:start
 
 ## 开发时实时生效
 
-运行 `pnpm pc:dev`，打开 `http://127.0.0.1:5173/`，无需先构建工作区包。Vite 提供前端热更新，Node watch 在执行器或共享包源码改变后自动重启；两个进程随 Ctrl+C 一起退出。该模式通过 `riqvo-development` 导出条件读取 contracts 和驱动源码，TypeScript 转换器保留注入浏览器的录制函数行为。正常 build/start 仍读取 dist。
+运行 `pnpm dev`，打开 `http://localhost:5177/`，无需先构建工作区包。Vite 提供前端热更新，Node watch 在执行器或共享包源码改变后自动重启；同时启动 NestJS，三个服务随 Ctrl+C 一起退出。该模式通过 `riqvo-development` 导出条件读取 contracts 和驱动源码，TypeScript 转换器保留注入浏览器的录制函数行为。正常 build/start 仍读取 dist。
 
-- `WEB_PORT` 配置 Vite 端口（默认 5173）。`RIQVO_PC_PORT` 配置本机执行器端口，开发默认 4319，构建模式默认 4318；开发命令在启动终端设置此变量即可同步代理。
+- `WEB_HOST` 默认 `0.0.0.0`；`WEB_PORT` 配置 Vite 端口（默认 5177）。`RIQVO_PC_PORT` 配置本机执行器端口，开发默认 4319，构建模式默认 4318；开发命令在启动终端设置此变量即可同步代理。
 - `WEB_PC_PROXY_TARGET` 可覆盖前端 `/api/pc` 代理地址；应与当前执行器一致。执行器保留来源校验，开发代理只转换当前开发站点的合法 Origin。
-- `WEB_API_PROXY_TARGET` 配置开发模式的 NestJS 健康检查代理，默认 3000；如需查看健康信息，另开终端运行 `pnpm --filter @riqvo/server dev`。PC 操作不依赖数据库。
+- `WEB_API_PROXY_TARGET` 配置开发模式的 NestJS 健康检查代理，默认 3000；统一命令会启动 NestJS，首次使用仍需完成平台配置和依赖初始化。PC 操作不依赖数据库。
 - 修改执行器或共享包会中止运行中的测试、清空进程内报告；网页会重新认证连接。前端热更新通常保留页面状态，但重要草稿仍需导出保存。
-- `pnpm dev` 是原有平台基础服务开发入口，含 Web、NestJS 与连通检查 Runner，不包含 PC 浏览器执行器；不要与 `pc:dev` 同时占用默认 Web 端口。
+- 单服务调试使用 `pnpm dev:web`、`pnpm dev:server`、`pnpm dev:runner`；不再区分平台开发与 PC 开发两套组合命令。已有 `.env` 需更新 `WEB_HOST=0.0.0.0`、`WEB_PORT=5177`；`env:init` 保留既有配置。
 
 ## 工作台界面与主题
 
@@ -135,9 +135,11 @@ RIQVO_CHROMIUM_EXECUTABLE=/usr/bin/chromium pnpm pc:start
 
 开发模式及统一入口补充验证：
 
-- 实际运行 `pnpm pc:dev`；修改 Vue 标题可即时更新，修改 contracts 和驱动源码会自动重启执行器；通过 Vite 代理完成真实浏览器回放并收到 SSE 结果。源码录制可生成步骤，密码仍仅生成变量引用。
+- 上一轮实际运行独立开发命令；修改 Vue 标题可即时更新，修改 contracts 和驱动源码会自动重启执行器；通过 Vite 代理完成真实浏览器回放并收到 SSE 结果。源码录制可生成步骤，密码仍仅生成变量引用。
 - 根地址进入工作台，系统状态可由侧栏打开；检查浅色、深色和 390px 布局。实际 NestJS 依赖失败报告可经构建模式转发，平台停止后正确返回不可连接。
 - 冻结安装、lint、typecheck、构建、格式检查通过；基础套件 **26 项** 与真实 MySQL 8.0.26 / Redis 隔离集成 **3 项**通过，无失败或跳过。本轮未重跑品牌浏览器套件，不将其历史结果计入本轮测试数。
+
+统一开发命令补充验证：`pnpm dev` 同时启动三个服务，Web 实际绑定 `0.0.0.0:5177`；前端热更新、共享包自动重启、真实回放/SSE、平台健康代理通过，外部 Origin 仍被拒绝。中断开发进程后端口释放。Node 22 下基础测试 26 项、构建、冻结安装、lint、typecheck、格式检查通过；本轮未重复数据库集成或品牌浏览器验证。
 
 复现品牌浏览器验证需要实际 Chrome/Edge、可用显示环境以及 `ffmpeg` / `ffprobe`，指定真实路径后运行：
 

@@ -21,9 +21,9 @@ pnpm dev
 ```
 
 - `env:init` 创建 `.env` 和 `.env.runner`，生成随机本地数据库密码；重复执行保留已有文件。配置及产物均被 Git 忽略。
-- Web 默认端口 **5173**，API 默认端口 **3000**，监听本机回环地址。Web 首页统一进入平台工作台，左侧「系统状态」查看基础依赖；通过同源 `/api` 访问后端。
+- Web 默认监听 **0.0.0.0:5177**，本机访问 `http://localhost:5177/`；API 默认监听本机回环地址 **3000**。Web 首页统一进入平台工作台，左侧「系统状态」查看基础依赖；通过同源 `/api` 访问后端。
 - MySQL **8.0.26** / Redis **7.4.12** 的宿主机端口默认为 **13306 / 16379**，仅绑定回环地址；开发与集成测试使用相同固定版本和镜像 digest。Compose 是本地开发配置，正式部署在 D26 交付。
-- `pnpm dev` 同时启动 Web、API 和连通检查 Runner，代码修改会重新编译/加载。它不启动 PC 浏览器执行器；开发录制/回放使用下方 `pnpm pc:dev`。终端 Ctrl+C 停止进程；`pnpm infra:stop` 停止依赖并保留数据。
+- `pnpm dev` 统一启动 Web、NestJS API 和 PC 浏览器执行器；前端热更新，后端与执行器修改后自动重启。终端 Ctrl+C 停止进程；`pnpm infra:stop` 停止依赖并保留数据。
 - `.env` 为服务器及开发 Web 配置；`.env.runner` 仅包含执行器的后端地址和检查间隔。服务器数据库凭据不需要复制给执行器。
 - API 启动不运行迁移；修改端口时，同步调整 `.env` 的 `WEB_API_PROXY_TARGET` 及 `.env.runner` 的 `RUNNER_API_URL`。
 - `ARTIFACT_DIR` 的相对路径始终以仓库为基准；默认 `.local/artifacts`。当前只验证读写能力，正式上传/下载和保留策略在 D16/D18 实现。
@@ -99,14 +99,14 @@ pnpm pc:start
 日常修改 PC 工作台时使用开发模式，无需每次 build：
 
 ```bash
-pnpm pc:dev
+pnpm dev
 ```
 
-打开 `http://127.0.0.1:5173/`。此命令同时启动 Vite 和 PC 执行器：Vue/样式修改即时热更新；执行器、contracts 和 Playwright 驱动直接从 TypeScript 源码运行，修改后自动重启。执行器默认端口 **4319**，前端通过同源代理访问 API 与 SSE。`pnpm pc:start` 保留为构建后体验入口。
+打开 `http://localhost:5177/`。此命令同时启动 Vite、NestJS 和 PC 执行器：Vue/样式修改即时热更新；执行器、contracts 和 Playwright 驱动直接从 TypeScript 源码运行，修改后自动重启。执行器默认端口 **4319**，前端通过同源代理访问 API 与 SSE。`pnpm pc:start` 保留为构建后体验入口。
 
-执行器重启会中止当前任务并清空内存结果，草稿请及时导出。`pc:dev` 和 `pnpm dev` 默认占用相同 Web 端口，不要同时启动；需要平台健康信息时另开终端执行 `pnpm --filter @riqvo/server dev`（先完成依赖启动和迁移）。
+执行器重启会中止当前任务并清空内存结果，草稿请及时导出。日常只需 `pnpm dev`；单服务调试可用 `pnpm dev:web`、`pnpm dev:server`、`pnpm dev:runner`。首次启动前按上文完成 `env:init`、依赖启动和迁移。
 
-「系统状态」读取真实 NestJS 健康检查；平台服务未启动时显示不可连接，不影响独立 PC 录制/回放。开发模式用 `WEB_API_PROXY_TARGET` 指向平台；构建模式用 `RIQVO_PC_PLATFORM_URL`，两者默认 `http://127.0.0.1:3000`。更多端口配置见 D03 说明。
+「系统状态」读取真实 NestJS 健康检查；平台服务未启动时显示不可连接，不影响独立 PC 录制/回放。开发模式用 `WEB_API_PROXY_TARGET` 指向平台；构建模式用 `RIQVO_PC_PLATFORM_URL`，两者默认 `http://127.0.0.1:3000`。已有 `.env` 不会被 `env:init` 覆盖，升级时将其中的 `WEB_HOST` / `WEB_PORT` 改为 `0.0.0.0` / `5177`。更多端口配置见 D03 说明。
 
 选择 Chrome/Edge 需要本机安装对应浏览器；也可通过 `RIQVO_CHROME_EXECUTABLE` / `RIQVO_EDGE_EXECUTABLE` 指定真实路径。Linux 可视模式需图形桌面或显式设置 `DISPLAY`。本工作台不是已经接入平台的远程设备服务。
 

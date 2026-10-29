@@ -2,21 +2,21 @@ import { fileURLToPath } from 'node:url';
 import { defaultClientConditions, defineConfig, loadEnv } from 'vite';
 import vue from '@vitejs/plugin-vue';
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command, isPreview }) => {
   const env = loadEnv(mode, fileURLToPath(new URL('../../', import.meta.url)), '');
+  const isDevelopment = command === 'serve' && !isPreview;
   const target = env.WEB_API_PROXY_TARGET || 'http://127.0.0.1:3000';
   const pcTarget =
     env.WEB_PC_PROXY_TARGET ||
-    `http://127.0.0.1:${env.RIQVO_PC_PORT || (mode === 'pc' ? '4319' : '4318')}`;
-  const host = env.WEB_HOST || '127.0.0.1';
-  const port = Number(env.WEB_PORT || 5173);
+    `http://127.0.0.1:${env.RIQVO_PC_PORT || (isDevelopment ? '4319' : '4318')}`;
+  const host = env.WEB_HOST || '0.0.0.0';
+  const port = Number(env.WEB_PORT || 5177);
   return {
     plugins: [vue()],
     resolve: {
-      conditions:
-        mode === 'pc'
-          ? ['riqvo-development', ...defaultClientConditions]
-          : [...defaultClientConditions],
+      conditions: isDevelopment
+        ? ['riqvo-development', ...defaultClientConditions]
+        : [...defaultClientConditions],
     },
     server: {
       host,
