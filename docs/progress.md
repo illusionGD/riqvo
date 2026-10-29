@@ -18,7 +18,7 @@
 - 已提供 [功能说明](features/d02-contracts-and-test-site.md)、[维护 skill](../.codex/skills/test-contracts/SKILL.md)、README 和 JSON 样例；当前功能临时计划在完成后删除。
 - 无剩余实现或外部阻塞；完成并 push 后暂停 review，不自动进入 D03。未宣称录制、任务派发、正式驱动、手机真机、视频或 AI 已实现。
 
-- 用户补充确认 [AI 编排位置与调用路径](architecture/ai-execution.md)，已同步产品基线、调研和后续计划；本次仅记录架构决定，不提前实现 AI 功能。
+- 用户补充确认真机管理基线，以及“个人 Key 仅网页本地持久化、允许本人本机执行器临时内存使用、团队 Key 后端加密保存”的边界；已同步 [AI 架构设计](architecture/ai-execution.md)、产品基线、调研和后续计划。个人直连、团队服务端调用与优化方案供本次 review，尚未实现；D02 仍待 review，不进入 D03。
 - 已实际启动 4174/4175 两套站点并检查页面截图，390px 无横向溢出；云环境断开后恢复，工作区改动仍在；恢复后重新通过格式、lint、typecheck、构建和 14 项公共流程测试。
 
 ## D01 记录

@@ -88,7 +88,7 @@ RIQVO_CHROMIUM_EXECUTABLE=/usr/bin/chromium pnpm test:integration
 ```text
 apps/web        Vue 3 + Vite + Pinia 管理台
 apps/server     NestJS API、配置、依赖检查、TypeORM 迁移
-apps/runner     独立执行核心入口，后续由桌面 App 或服务器进程承载
+apps/runner     独立执行核心入口，后续由桌面 App 或设备主机后台进程承载
 apps/test-site  独立可控演示站，提供两套环境和代表性 Web 交互
 packages/contracts  共享任务、步骤、能力、结果和事件协议
 examples/d02    JSON 任务、环境及样例能力声明
