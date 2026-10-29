@@ -39,7 +39,7 @@
 | Node / pnpm / TypeScript  | 22.23.4 / 11.25.0 / 5.9.3                    |
 | NestJS / TypeORM / mysql2 | 11.2.8 / 0.3.31 / 3.24.6                     |
 | Vue / Vite / Pinia        | 3.5.44 / 8.3.5 / 3.0.4                       |
-| MySQL / Redis             | 8.4.13 / 7.4.12；Compose 同时固定镜像 digest |
+| MySQL / Redis             | 8.0.26 / 7.4.12；Compose 同时固定镜像 digest |
 | ioredis / Playwright      | 5.11.1 / 1.64.1                              |
 | 实际验收浏览器            | 云环境 Chromium 154.0.8037.57，Linux x64     |
 
@@ -47,6 +47,8 @@
 
 ## 数据与进程约束
 
+- 数据库按用户要求固定为 MySQL 8.0.26，开发与隔离集成测试共用该版本及 digest。官方镜像只提供 linux/amd64，Compose 显式指定平台；ARM 主机需自行提供 Docker 模拟能力，尚未实测。
+- 开发切换使用新卷 `riqvo-dev_mysql-8-0-26-data`，首次运行重新执行基础迁移；旧 8.4 卷 `riqvo-dev_mysql-data` 保留，未自动导入或删除。不能直接降级复用数据库文件，业务数据需要单独验证逻辑导出/导入。
 - `.env` 为后端/开发配置，`.env.runner` 为执行端配置；两者均忽略提交。初始化命令不覆盖已有文件，随机数据库密码仅写入本地配置，不打印值。
 - 后端只通过 `db:migrate` 改表；应用启动不会自动迁移。`db:status` 可能初始化迁移记录表，但不应用业务/schema 迁移。
 - D01 仅创建 `riqvo_metadata` 和 `riqvo_migrations`。基础 migration 可以恢复表创建与记录之间的中断；MySQL DDL 不能宣称整体事务回滚。后续迁移仍须逐项设计恢复策略，公共 CLI 不提供删除数据的回滚命令。
@@ -69,6 +71,8 @@
 另已通过 `pnpm format:check`、`pnpm install --frozen-lockfile`，并验证重复初始化不更改已有配置。云环境安装脚本和启动说明已保存草稿，待在环境设置中保存并发布；当前实例验证不等于新任务恢复验证。
 
 公共 HTTP、CLI、Web 流程沿用总体计划已批准的测试边界。关键行为按失败用例 → 实现 → 通过推进；未用内部模块替身或 SQLite 替代 MySQL。尚未验证 Windows/macOS 安装、真机或 AI，均留在对应功能的验收中。
+
+MySQL 8.0.26 调整复验：实际 Node 22.23.4 下 lint、typecheck、构建与 3 项隔离集成测试通过，无失败或跳过。开发数据库实际 `SELECT VERSION()` 返回 8.0.26；新卷迁移首次 applied=1、重复 applied=0，状态无待执行项，API/Web 代理就绪及 Runner 检查成功。此次仅调整数据库配置和说明，沿用既有集成测试验证兼容性。
 
 ## Review 建议
 

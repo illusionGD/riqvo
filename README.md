@@ -20,11 +20,15 @@ pnpm dev
 
 - `env:init` 创建 `.env` 和 `.env.runner`，生成随机本地数据库密码；重复执行保留已有文件。配置及产物均被 Git 忽略。
 - Web 默认端口 **5173**，API 默认端口 **3000**，监听本机回环地址。Web 通过同源 `/api` 访问后端。
-- MySQL / Redis 的宿主机端口默认为 **13306 / 16379**，仅绑定回环地址；数据存于 Docker volumes。Compose 是本地开发配置，正式部署在 D26 交付。
+- MySQL **8.0.26** / Redis **7.4.12** 的宿主机端口默认为 **13306 / 16379**，仅绑定回环地址；开发与集成测试使用相同固定版本和镜像 digest。Compose 是本地开发配置，正式部署在 D26 交付。
 - `pnpm dev` 同时启动 Web、API 和执行器，代码修改会重新编译/加载。终端 Ctrl+C 停止进程；`pnpm infra:stop` 停止依赖并保留数据。
 - `.env` 为服务器及开发 Web 配置；`.env.runner` 仅包含执行器的后端地址和检查间隔。服务器数据库凭据不需要复制给执行器。
 - API 启动不运行迁移；修改端口时，同步调整 `.env` 的 `WEB_API_PROXY_TARGET` 及 `.env.runner` 的 `RUNNER_API_URL`。
 - `ARTIFACT_DIR` 的相对路径始终以仓库为基准；默认 `.local/artifacts`。当前只验证读写能力，正式上传/下载和保留策略在 D16/D18 实现。
+
+MySQL 8.0.26 官方镜像仅提供 `linux/amd64`，Compose 已显式指定平台；ARM 主机需要 Docker 的 amd64 模拟能力，本次仅在 Linux x64 实测。
+
+数据库使用新数据卷 `riqvo-dev_mysql-8-0-26-data`。从此前的 8.4 配置切换后，首次启动会初始化新库，需执行 `pnpm db:migrate`；旧卷 `riqvo-dev_mysql-data` 保留，但不会挂载或自动导入。不要将 8.4 数据目录直接交给 8.0.26 打开；已有业务数据需要另行验证逻辑导出/导入。
 
 本云环境已在工作区安装 Node 22；新终端先激活它，并为 pnpm 指定工作区目录，避免使用系统默认 Node 或不可写的用户目录：
 

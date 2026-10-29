@@ -13,6 +13,8 @@ description: riqvo 的 D01 工程结构、启动命令、真实依赖检查和�
 
 `pnpm infra:up` → `pnpm db:migrate` → `pnpm dev`。只重启本任务启动的进程。Docker 数据默认保留，不能为解决连接错误直接删除开发 volumes。先检查端口、运行状态与配置是否匹配。
 
+数据库固定为用户指定的 MySQL 8.0.26，开发/集成测试镜像及 digest 保持一致。官方镜像仅有 linux/amd64，ARM 主机需提供模拟能力。开发使用 `mysql-8-0-26-data` 新卷，旧 `mysql-data` 卷保留且不自动导入；禁止让 8.0.26 直接打开 8.4 数据目录。SQL 与迁移须在实际 8.0.26 上验证。
+
 本云环境的 Node 22 已安装在 `/workspace/riqvo/.cache/toolchains/node-v22.23.4-linux-x64/bin`；每个新 shell 把此目录放在 PATH 前端，并用 `node --version` 和 `pnpm exec node --version` 检查实际版本。用户目录不可写时，为安装命令设置 `PNPM_HOME=/workspace/riqvo/.cache/pnpm/home`。读云环境运行 skill 后再做网络或 Docker 操作，保留代理与 TLS 校验。服务进程不能假定跨云环境任务继续运行。
 
 ## 代码边界

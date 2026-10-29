@@ -1,7 +1,8 @@
 # Dedicated disposable services; only scripts/test-integration.mjs supplies credentials.
 services:
   mysql:
-    image: mysql:8.4.13@sha256:a0225d1ea6631c8bc2385dc4c2faba17bbf1834ecf369e1659a9a382bd8d5dd7
+    image: mysql:8.0.26@sha256:5d52dc010398db422949f079c76e98f6b62230e5b59c0bf7582409d2c85abacb
+    platform: linux/amd64
     environment:
       MYSQL_DATABASE: riqvo_test
       MYSQL_USER: riqvo_test
