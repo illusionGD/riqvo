@@ -1,6 +1,6 @@
 # riqvo 开发功能计划
 
-日期：2026-10-29。状态：D01/D02 已确认继续，D03 及 SSE/后台布局/主题、开发热更新、统一平台入口和统一开发命令（Web 0.0.0.0:5177）及 HTTP 响应规范调整已实现并验证，暂停等待用户 review。每个功能完成并验证后，提交并 push 到 `origin/dev`，随后暂停，等用户 review 后再开始下一个功能；进度见 [progress.md](progress.md)。
+日期：2026-10-30。状态：D01～D03 已确认继续；D04 已完成 [实现拆分](plans/d04-android-plan.md)，待用户 review 后开始开发。每个功能完成并验证后，提交并 push 到 `origin/dev`，随后暂停，等用户 review 后再开始下一个功能；进度见 [progress.md](progress.md)。
 
 2026-10-30 范围调整：桌面终端仅交付 Windows 和 macOS，Linux 桌面安装包、升级适配与发布验收暂不纳入范围；Web 项目暂不在 Linux 部署。现有 Linux 云环境仅用于开发和自动化验证，相关历史结果保留，不作为上线平台支持的承诺。
 
@@ -38,7 +38,7 @@
 | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
 | [project-plan](../.codex/skills/project-plan/SKILL.md)                                         | 复用已确认调研，生成本总体 plan；开发启动后维护 progress.md                    |
 | [research](../.codex/skills/research/SKILL.md)                                                 | 沿用既有方案；新增重大选型或原型发现能力缺口时补充针对性调研                   |
-| [to-tickets](../.codex/skills/to-tickets/SKILL.md)、[coding](../.codex/skills/coding/SKILL.md) | 开发到对应大功能时再拆小任务，按依赖实施并记录结果                             |
+| [to-tickets](../.codex/skills/to-tickets/SKILL.md)、[coding](../.codex/skills/coding/SKILL.md) | 每个大功能先拆实现任务交用户 review，确认后按依赖实施并逐项记录结果            |
 | [tdd](../.codex/skills/tdd/SKILL.md) 及附属指南                                                | 在统一评审的公共测试边界上，按行为逐项红—绿验证，避免实现耦合测试              |
 | [前端代码规则](../.codex/rules/frontend-code-standards.md)                                     | Vue SFC、Pinia Setup Store、显式类型、JSDoc、SCSS/BEM 及格式检查               |
 | [工程结构规则](../.codex/rules/vue3-vite-ts-project-structure.md)                              | 应用于 apps/web/src，保持 views、components、stores、services 等职责和依赖方向 |
